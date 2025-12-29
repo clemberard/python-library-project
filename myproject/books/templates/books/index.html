@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Books</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .book {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        h1 {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>Books</h1>
+
+    <input type="text" id="search" placeholder="Search books..." onkeyup="filterBooks()">
+
+    <a href="{% url 'new_book' %}">
+        Créer un livre
+    </a>
+    
+    {% if books %}
+        {% for book in books %}
+            <div class="book">
+                <h2>{{ book.title }}</h2>
+                <p>
+                    <strong>Auteur:</strong> 
+                    <a href="{% url 'show_author' book.author.id %}">
+                        {{ book.author.name }}
+                    </a>
+                </p>
+                <p><strong>Prix:</strong> {{ book.price }}</p>
+                <p><strong>Date de publication:</strong> {{ book.published_date }}</p>
+                <a href="{% url 'show_book' book.id %}">Voir les détails</a>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No books available.</p>
+    {% endif %}
+
+    <script>
+        function filterBooks() {
+            const input = document.getElementById('search');
+            const filter = input.value.toLowerCase();
+            const books = document.getElementsByClassName('book');
+
+            for (let i = 0; i < books.length; i++) {
+                const title = books[i].getElementsByTagName('h2')[0];
+                if (title.innerHTML.toLowerCase().indexOf(filter) > -1) {
+                    books[i].style.display = "";
+                } else {
+                    books[i].style.display = "none";
+                }
+            }
+        }
+    </script>
+</body>
+</html>
