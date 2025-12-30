@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from books.models import Book
 from authors.models import Author
+from loans.models import Loan
 from .forms import BookForm
 
 # Create your views here.
@@ -31,7 +32,9 @@ def show_book(request, book_id):
         HttpResponse: The HTTP response with the book details.
     """
     book = Book.objects.get(id=book_id)
-    return render(request, 'books/show.html', {'book': book})
+    loans = Loan.objects.filter(book=book, return_date__isnull=True)
+
+    return render(request, 'books/show.html', {'book': book, 'loans': loans})
 
 def new_view(request):
     """_summary_
@@ -58,23 +61,68 @@ def create_view(request):
         HttpResponse: The HTTP response after creating a new book.
     """
     if request.method == 'POST':
-        isbn = request.POST.get('isbn')
-        title = request.POST.get('title')
-        price = request.POST.get('price')
-        published_date = request.POST.get('published_date')
-        author_id = request.POST.get('author')
-        
-        author = Author.objects.get(id=author_id)
-        
-        new_book = Book(
-            isbn=isbn,
-            title=title,
-            price=price,
-            published_date=published_date,
-            author=author
-        )
-        new_book.save()
-        
-        return render(request, 'books/show.html', {'book': new_book})
+        form = BookForm(request.POST)
+        if form.is_valid():
+            new_book = form.save()
+            return render(request, 'books/show.html', {'book': new_book})
+        else:
+            return render(request, 'books/new.html', {'form': form})
     else:
         return HttpResponse('Invalid request method.', status=400)
+
+def edit_view(request, book_id):
+    """_summary_
+    Docstring pour edit_view
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+        book_id (int): The ID of the book to edit.
+    
+    Returns:
+        HttpResponse: The HTTP response for the edit book page.
+    """
+    book = Book.objects.get(id=book_id)
+    form = BookForm(instance=book)
+
+    return render(request, 'books/edit.html', {'form': form, 'book': book})
+
+def update_view(request, book_id):
+    """_summary_
+    Docstring pour update_view
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+        book_id (int): The ID of the book to update.
+    
+    Returns:
+        HttpResponse: The HTTP response after updating the book.
+    """
+    book = Book.objects.get(id=book_id)
+
+    if request.method == 'POST':
+        form = BookForm(request.POST, instance=book)
+        if form.is_valid():
+            updated_book = form.save()
+            return render(request, 'books/show.html', {'book': updated_book})
+        else:
+            return render(request, 'books/edit.html', {'form': form, 'book': book})
+    else:
+        return HttpResponse('Invalid request method.', status=400)
+    
+def delete_view(request, book_id):
+    """_summary_
+    Docstring pour delete_view
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+        book_id (int): The ID of the book to delete.
+    
+    Returns:
+        HttpResponse: The HTTP response after deleting the book.
+    """
+    book = Book.objects.get(id=book_id)
+    book.delete()
+    
+    books = Book.objects.all()
+    return render(request, 'books/index.html', {'books': books})
+    

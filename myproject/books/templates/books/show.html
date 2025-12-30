@@ -1,17 +1,624 @@
-<div class="book-detail">
-    <h1>{{ book.title }}</h1>
-    
-    <div class="book-info">
-        <p>
-            <strong>Auteur:</strong> 
-            <a href="{% url 'show_author' book.author.id %}">
-                {{ book.author }}
-            </a>
-        </p>
-        <p><strong>ISBN:</strong> {{ book.isbn }}</p>
-        <p><strong>Publié le:</strong> {{ book.published_date }}</p>
-        <p><strong>Prix:</strong> {{ book.price }} €</p>
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ book.title }} - Bibliothèque</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .back-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: background 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        h1 {
+            font-size: 1.8rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .availability-banner {
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 600;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .banner-available {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            color: #065f46;
+            border-left: 5px solid #10b981;
+        }
+
+        .banner-limited {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            color: #92400e;
+            border-left: 5px solid #f59e0b;
+        }
+
+        .banner-unavailable {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: #991b1b;
+            border-left: 5px solid #ef4444;
+        }
+
+        .content-layout {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .book-cover-section {
+            position: sticky;
+            top: 2rem;
+            height: fit-content;
+        }
+
+        .book-cover-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+
+        .book-cover {
+            width: 100%;
+            max-width: 280px;
+            height: 400px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5rem;
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .book-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .price-tag {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+
+        .stock-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .stock-box {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stock-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 0.25rem;
+        }
+
+        .stock-label {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            font-size: 1.3rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-body {
+            padding: 2rem;
+        }
+
+        .book-title-main {
+            font-size: 2.5rem;
+            color: #1e293b;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .book-author-main {
+            font-size: 1.3rem;
+            color: #667eea;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .info-value {
+            font-size: 1.1rem;
+            color: #1e293b;
+            font-weight: 500;
+        }
+
+        .divider {
+            height: 1px;
+            background: #e2e8f0;
+            margin: 2rem 0;
+        }
+
+        .description-section {
+            line-height: 1.8;
+            color: #475569;
+            font-size: 1.05rem;
+        }
+
+        .description-section p {
+            margin-bottom: 1rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .badge-category {
+            background: #e0e7ff;
+            color: #4338ca;
+        }
+
+        .badge-language {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .meta-tags {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn {
+            padding: 0.875rem 1.75rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+
+        .loans-history {
+            margin-top: 1.5rem;
+        }
+
+        .loan-item {
+            background: #f8fafc;
+            padding: 1rem 1.25rem;
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .loan-info {
+            flex: 1;
+        }
+
+        .loan-name {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.25rem;
+        }
+
+        .loan-date {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        .loan-status {
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-en-cours {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-retourne {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #94a3b8;
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 968px) {
+            .content-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .book-cover-section {
+                position: relative;
+                top: 0;
+            }
+
+            .book-title-main {
+                font-size: 1.8rem;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .header-actions {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="header-left">
+                <a href="{% url 'books_index' %}" class="back-btn">← Catalogue</a>
+                <h1>Détails du livre</h1>
+            </div>
+            <div class="header-actions">
+                <a href="{% url 'edit_book' book.id %}" class="btn btn-warning">✏️ Modifier</a>
+                {% if book.copies_available > 0 %}
+                <a href="{% url 'add_loan' %}?book={{ book.id }}" class="btn btn-success">📖 Emprunter</a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Bannière de disponibilité -->
+        {% if book.copies_available > 0 %}
+            {% if book.copies_available >= 5 %}
+            <div class="availability-banner banner-available">
+                <div>
+                    <span style="font-size: 1.5rem; margin-right: 0.5rem;">✓</span>
+                    <strong>Disponible</strong> - {{ book.copies_available }} exemplaire{{ book.copies_available|pluralize }} en stock
+                </div>
+                <a href="{% url 'add_loan' %}?book={{ book.id }}" class="btn btn-success" style="margin: 0;">Emprunter maintenant</a>
+            </div>
+            {% else %}
+            <div class="availability-banner banner-limited">
+                <div>
+                    <span style="font-size: 1.5rem; margin-right: 0.5rem;">⚠️</span>
+                    <strong>Stock limité</strong> - Plus que {{ book.copies_available }} exemplaire{{ book.copies_available|pluralize }}
+                </div>
+                <a href="{% url 'add_loan' %}?book={{ book.id }}" class="btn btn-warning" style="margin: 0;">Emprunter vite</a>
+            </div>
+            {% endif %}
+        {% else %}
+        <div class="availability-banner banner-unavailable">
+            <div>
+                <span style="font-size: 1.5rem; margin-right: 0.5rem;">✕</span>
+                <strong>Indisponible</strong> - Tous les exemplaires sont empruntés
+            </div>
+            <button class="btn btn-secondary" style="margin: 0;" disabled>Bientôt disponible</button>
+        </div>
+        {% endif %}
+
+        <div class="content-layout">
+            <!-- Section Couverture -->
+            <div class="book-cover-section">
+                <div class="book-cover-card">
+                    <div class="book-cover">
+                        {% if book.image %}
+                            <img src="{{ book.image.url }}" alt="{{ book.title }}">
+                        {% else %}
+                            📚
+                        {% endif %}
+                    </div>
+                    
+                    <div class="price-tag">{{ book.price }} €</div>
+                    
+                    <div class="stock-info">
+                        <div class="stock-box">
+                            <div class="stock-value">{{ book.copies_available }}</div>
+                            <div class="stock-label">Disponibles</div>
+                        </div>
+                        <div class="stock-box">
+                            <div class="stock-value">{{ book.copies_possessed }}</div>
+                            <div class="stock-label">Total</div>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons" style="margin-top: 1.5rem;">
+                        <a href="{% url 'edit_book' book.id %}" class="btn btn-warning" style="width: 100%;">
+                            ✏️ Modifier
+                        </a>
+                        <button onclick="if(confirm('Supprimer ce livre ?')) document.getElementById('deleteForm').submit();" class="btn btn-danger" style="width: 100%;">
+                            🗑️ Supprimer
+                        </button>
+                    </div>
+
+                    <form id="deleteForm" action="{% url 'delete_book' book.id %}" method="post" style="display: none;">
+                        {% csrf_token %}
+                    </form>
+                </div>
+            </div>
+
+            <!-- Section Informations -->
+            <div>
+                <!-- Carte Informations principales -->
+                <div class="card">
+                    <div class="card-header">
+                        <span>📖</span>
+                        <span>Informations du livre</span>
+                    </div>
+                    <div class="card-body">
+                        <h2 class="book-title-main">{{ book.title }}</h2>
+                        <div class="book-author-main">
+                            <span>✍️</span>
+                            <span>par {{ book.author.name }}</span>
+                        </div>
+
+                        <div class="meta-tags">
+                            {% if book.category %}
+                            <span class="badge badge-category">{{ book.category.name }}</span>
+                            {% endif %}
+                            <span class="badge badge-language">{{ book.language }}</span>
+                        </div>
+
+                        <div class="divider"></div>
+
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">📚 ISBN</div>
+                                <div class="info-value">{{ book.isbn }}</div>
+                            </div>
+
+                            <div class="info-item">
+                                <div class="info-label">📅 Date de publication</div>
+                                <div class="info-value">{{ book.published_date|date:"d/m/Y" }}</div>
+                            </div>
+
+                            <div class="info-item">
+                                <div class="info-label">📄 Nombre de pages</div>
+                                <div class="info-value">{{ book.number_pages }} pages</div>
+                            </div>
+
+                            <div class="info-item">
+                                <div class="info-label">🌍 Langue</div>
+                                <div class="info-value">{{ book.language }}</div>
+                            </div>
+
+                            {% if book.edition %}
+                            <div class="info-item">
+                                <div class="info-label">📗 Édition</div>
+                                <div class="info-value">{{ book.edition }}</div>
+                            </div>
+                            {% endif %}
+
+                            <div class="info-item">
+                                <div class="info-label">⏰ Ajouté le</div>
+                                <div class="info-value">{{ book.created_at|date:"d/m/Y" }}</div>
+                            </div>
+                        </div>
+
+                        {% if book.description %}
+                        <div class="divider"></div>
+                        <div class="info-label" style="margin-bottom: 1rem;">📝 DESCRIPTION</div>
+                        <div class="description-section">
+                            {{ book.description|linebreaks }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Carte Historique des emprunts -->
+                <div class="card">
+                    <div class="card-header">
+                        <span>📋</span>
+                        <span>Historique des emprunts</span>
+                    </div>
+                    <div class="card-body">
+                        {% if loans %}
+                        <div class="loans-history">
+                            {% for loan in loans %}
+                            <div class="loan-item">
+                                <div class="loan-info">
+                                    <div class="loan-name">{{ loan.name_loaner }}</div>
+                                    <div class="loan-date">
+                                        Du {{ loan.created_at|date:"d/m/Y" }}
+                                        {% if loan.return_date %}
+                                            au {{ loan.return_date|date:"d/m/Y" }}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <span class="loan-status status-{{ loan.status }}">
+                                    {{ loan.get_status_display|default:loan.status }}
+                                </span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="empty-state">
+                            <div class="empty-icon">📭</div>
+                            <p><strong>Aucun emprunt</strong></p>
+                            <p>Ce livre n'a jamais été emprunté</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    
-    <a href="{% url 'books_index' %}">Back to Books List</a>
-</div>
+</body>
+</html>
