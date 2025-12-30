@@ -438,7 +438,7 @@
             <div class="header-actions">
                 <a href="{% url 'edit_book' book.id %}" class="btn btn-warning">✏️ Modifier</a>
                 {% if book.copies_available > 0 %}
-                <a href="{% url 'add_loan' %}?book={{ book.id }}" class="btn btn-success">📖 Emprunter</a>
+                <a href="{% url 'new_loan' %}?book={{ book.id }}" class="btn btn-success">📖 Emprunter</a>
                 {% endif %}
             </div>
         </div>
@@ -453,7 +453,7 @@
                     <span style="font-size: 1.5rem; margin-right: 0.5rem;">✓</span>
                     <strong>Disponible</strong> - {{ book.copies_available }} exemplaire{{ book.copies_available|pluralize }} en stock
                 </div>
-                <a href="{% url 'add_loan' %}?book={{ book.id }}" class="btn btn-success" style="margin: 0;">Emprunter maintenant</a>
+                <a href="{% url 'new_loan' %}?book={{ book.id }}" class="btn btn-success" style="margin: 0;">Emprunter maintenant</a>
             </div>
             {% else %}
             <div class="availability-banner banner-limited">
@@ -461,7 +461,7 @@
                     <span style="font-size: 1.5rem; margin-right: 0.5rem;">⚠️</span>
                     <strong>Stock limité</strong> - Plus que {{ book.copies_available }} exemplaire{{ book.copies_available|pluralize }}
                 </div>
-                <a href="{% url 'add_loan' %}?book={{ book.id }}" class="btn btn-warning" style="margin: 0;">Emprunter vite</a>
+                <a href="{% url 'new_loan' %}?book={{ book.id }}" class="btn btn-warning" style="margin: 0;">Emprunter vite</a>
             </div>
             {% endif %}
         {% else %}

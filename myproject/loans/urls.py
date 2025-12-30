@@ -9,4 +9,5 @@ urlpatterns = [
     path('edit/<int:loan_id>/', views.edit_loan, name='edit_loan'),
     path('update/<int:loan_id>/', views.update_loan, name='update_loan'),
     path('delete/<int:loan_id>/', views.delete_loan, name='delete_loan'),
+    path('return/<int:loan_id>/', views.return_loan, name='return_loan'),
 ]

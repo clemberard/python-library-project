@@ -385,11 +385,11 @@
                                 <a href="{% url 'edit_loan' loan.id %}" class="btn-small btn-edit">✏️ Modifier</a>
                                 <a href="{% url 'delete_loan' loan.id %}" 
                                    class="btn-small btn-delete" 
-                                   onclick="event.preventDefault(); if(confirm('Êtes-vous sûr de vouloir supprimer cet emprunt ?')) { document.getElementById('deleteForm').submit(); }">
+                                   onclick="if(confirm('Êtes-vous sûr de vouloir supprimer cet emprunt ?')) { document.getElementById('deleteForm').submit(); }">
                                     🗑️ Supprimer
                                 </a>
                                 {% if loan.status == 'en_cours' %}
-                                <a href="{% url 'loan_return' loan.id %}" class="btn-small btn-return">✓ Retour</a>
+                                <a href="{% url 'return_loan' loan.id %}" class="btn-small btn-return">✓ Retour</a>
                                 {% endif %}
                             </div>
                         </td>

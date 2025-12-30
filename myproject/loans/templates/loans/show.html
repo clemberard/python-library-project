@@ -420,7 +420,7 @@
             <div class="header-actions action-buttons">
                 <a href="{% url 'edit_loan' loan.id %}" class="btn btn-warning">✏️ Modifier</a>
                 {% if loan.status == 'en_cours' %}
-                <a href="{% url 'loan_return' loan.id %}" class="btn btn-success">✓ Marquer comme retourné</a>
+                <a href="{% url 'return_loan' loan.id %}" class="btn btn-success">✓ Marquer comme retourné</a>
                 {% endif %}
             </div>
         </div>
@@ -592,7 +592,7 @@
                                 ✏️ Modifier l'emprunt
                             </a>
                             {% if loan.status == 'en_cours' %}
-                            <a href="{% url 'loan_return' loan.id %}" class="btn btn-success">
+                            <a href="{% url 'return_loan' loan.id %}" class="btn btn-success">
                                 ✓ Marquer retourné
                             </a>
                             {% endif %}

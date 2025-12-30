@@ -16,8 +16,8 @@ def loans_view(request):
     """
     loans = Loan.objects.all()
     total_loans = loans.count()
-    active_loans = loans.filter(status='En cours').count()
-    returned_loans = loans.filter(status='retourné').count()
+    active_loans = loans.filter(status='en_cours').count()
+    returned_loans = loans.filter(status='retourne').count()
     late_loans = loans.filter(status='en_retard').count()
     
     return render(request, 'loans/index.html', {
@@ -68,18 +68,10 @@ def create_loan(request):
     if request.method == 'POST':
         form = LoanForm(request.POST)
         if form.is_valid():
-            book = Book.objects.get(id=form.cleaned_data['book'].id)
-            new_loan = Loan(
-                name_loaner=form.cleaned_data['name_loaner'],
-                email_loaner=form.cleaned_data['email_loaner'],
-                library_card_number=form.cleaned_data['library_card_number'],
-                return_date=form.cleaned_data['return_date'],
-                status=form.cleaned_data['status'],
-                commentary_librarian=form.cleaned_data['commentary_librarian'],
-                book=book
-            )
-            new_loan.save()
+            new_loan = form.save()
             return render(request, 'loans/show.html', {'loan': new_loan})
+        else:
+            return render(request, 'loans/new.html', {'form': form})
     else:
         form = LoanForm()
         return render(request, 'loans/new.html', {'form': form})
@@ -156,4 +148,36 @@ def delete_loan(request, loan_id):
     """
     loan = Loan.objects.get(id=loan_id)
     loan.delete()
-    return render(request, 'loans/index.html')
+    
+    loans = Loan.objects.all()
+    total_loans = loans.count()
+    active_loans = loans.filter(status='en_cours').count()
+    returned_loans = loans.filter(status='retourne').count()
+    late_loans = loans.filter(status='en_retard').count()
+    
+    return render(request, 'loans/index.html', {
+        'loans': loans,
+        'total_loans': total_loans,
+        'active_loans': active_loans,
+        'returned_loans': returned_loans,
+        'late_loans': late_loans
+    })
+
+def return_loan(request, loan_id):
+    """_summary_
+    Docstring pour return_loan
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+        loan_id (int): The ID of the loan to return.
+    
+    Returns:
+        Rendered HTML page after returning a specific loan.
+    """
+    loan = Loan.objects.get(id=loan_id)
+    if request.method == 'POST':
+        loan.status = 'retourne'
+        loan.save()
+        return render(request, 'loans/show.html', {'loan': loan})
+    else:
+        return render(request, 'loans/return.html', {'loan': loan})

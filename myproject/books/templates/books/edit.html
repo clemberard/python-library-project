@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ book.title }} - Bibliothèque</title>
+    <title>{% if book.id %}Modifier{% else %}Ajouter{% endif %} un livre - Bibliothèque</title>
     <style>
         * {
             margin: 0;
@@ -27,17 +27,9 @@
         }
 
         .header-content {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 0 2rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .header-left {
             display: flex;
             align-items: center;
             gap: 1rem;
@@ -61,70 +53,51 @@
             font-size: 1.8rem;
         }
 
-        .header-actions {
-            display: flex;
-            gap: 0.75rem;
-            flex-wrap: wrap;
-        }
-
         .container {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 2rem auto;
             padding: 0 2rem;
         }
 
-        .availability-banner {
-            padding: 1rem 1.5rem;
-            border-radius: 10px;
-            margin-bottom: 2rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-weight: 600;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .banner-available {
-            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-            color: #065f46;
-            border-left: 5px solid #10b981;
-        }
-
-        .banner-limited {
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            color: #92400e;
-            border-left: 5px solid #f59e0b;
-        }
-
-        .banner-unavailable {
-            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-            color: #991b1b;
-            border-left: 5px solid #ef4444;
-        }
-
-        .content-layout {
+        .form-layout {
             display: grid;
             grid-template-columns: 350px 1fr;
             gap: 2rem;
-            margin-bottom: 2rem;
         }
 
-        .book-cover-section {
+        .image-upload-section {
             position: sticky;
             top: 2rem;
             height: fit-content;
         }
 
-        .book-cover-card {
+        .card {
             background: white;
             border-radius: 15px;
-            padding: 2rem;
             box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-body {
+            padding: 2rem;
+        }
+
+        .image-preview-container {
             text-align: center;
         }
 
-        .book-cover {
+        .image-preview {
             width: 100%;
             max-width: 280px;
             height: 400px;
@@ -137,157 +110,214 @@
             margin: 0 auto 1.5rem;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s;
+            position: relative;
         }
 
-        .book-cover img {
+        .image-preview:hover {
+            transform: scale(1.02);
+        }
+
+        .image-preview img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
 
-        .price-tag {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #667eea;
-            margin-bottom: 1rem;
+        .image-preview-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+            color: white;
+            gap: 0.5rem;
         }
 
-        .stock-info {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin-top: 1.5rem;
+        .image-preview:hover .image-preview-overlay {
+            opacity: 1;
         }
 
-        .stock-box {
-            background: #f8fafc;
-            padding: 1rem;
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 0.875rem;
+            background: #667eea;
+            color: white;
+            text-align: center;
             border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .file-input-label:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .current-image-name {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 0.5rem;
             text-align: center;
         }
 
-        .stock-value {
-            font-size: 1.8rem;
-            font-weight: 700;
+        .form-section {
+            margin-bottom: 2.5rem;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
             color: #667eea;
-            margin-bottom: 0.25rem;
-        }
-
-        .stock-label {
-            font-size: 0.85rem;
-            color: #64748b;
-        }
-
-        .card {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-            overflow: hidden;
-            margin-bottom: 2rem;
-        }
-
-        .card-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 1.5rem;
-            font-size: 1.3rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .card-body {
-            padding: 2rem;
-        }
-
-        .book-title-main {
-            font-size: 2.5rem;
-            color: #1e293b;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            line-height: 1.2;
-        }
-
-        .book-author-main {
-            font-size: 1.3rem;
-            color: #667eea;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e2e8f0;
             display: flex;
             align-items: center;
             gap: 0.5rem;
         }
 
-        .info-grid {
+        .form-row {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 2rem;
-            margin-bottom: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
         }
 
-        .info-item {
+        .form-group {
             display: flex;
             flex-direction: column;
         }
 
-        .info-label {
+        .form-group-full {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .required {
+            color: #ef4444;
+            margin-left: 0.25rem;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        select,
+        textarea {
+            padding: 0.875rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23667eea' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            padding-right: 3rem;
+        }
+
+        .help-text {
             font-size: 0.85rem;
             color: #64748b;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
+            margin-top: 0.5rem;
         }
 
-        .info-value {
-            font-size: 1.1rem;
-            color: #1e293b;
-            font-weight: 500;
-        }
-
-        .divider {
-            height: 1px;
-            background: #e2e8f0;
-            margin: 2rem 0;
-        }
-
-        .description-section {
-            line-height: 1.8;
-            color: #475569;
-            font-size: 1.05rem;
-        }
-
-        .description-section p {
-            margin-bottom: 1rem;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
-
-        .badge-category {
-            background: #e0e7ff;
-            color: #4338ca;
-        }
-
-        .badge-language {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        .meta-tags {
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
             display: flex;
+            align-items: flex-start;
             gap: 0.75rem;
-            flex-wrap: wrap;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid #ef4444;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border-left: 4px solid #10b981;
+        }
+
+        .info-box {
+            background: #f0f9ff;
+            border-left: 4px solid #3b82f6;
+            padding: 1rem;
+            border-radius: 8px;
             margin-bottom: 1.5rem;
         }
 
+        .info-box-title {
+            font-weight: 600;
+            color: #1e40af;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-box-text {
+            color: #1e3a8a;
+            font-size: 0.9rem;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            padding-top: 2rem;
+            border-top: 2px solid #f1f5f9;
+            margin-top: 2rem;
+        }
+
         .btn {
-            padding: 0.875rem 1.75rem;
+            padding: 0.875rem 2rem;
             border: none;
             border-radius: 8px;
             font-size: 1rem;
@@ -298,7 +328,6 @@
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            justify-content: center;
         }
 
         .btn-primary {
@@ -306,19 +335,9 @@
             color: white;
         }
 
-        .btn-success {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-        }
-
-        .btn-warning {
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-            color: white;
-        }
-
-        .btn-danger {
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-            color: white;
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
 
         .btn-secondary {
@@ -326,104 +345,57 @@
             color: #475569;
         }
 
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        .btn-secondary:hover {
+            background: #cbd5e1;
         }
 
-        .action-buttons {
-            display: flex;
+        .stock-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 1rem;
-            flex-wrap: wrap;
-            margin-top: 2rem;
-        }
-
-        .loans-history {
-            margin-top: 1.5rem;
-        }
-
-        .loan-item {
             background: #f8fafc;
-            padding: 1rem 1.25rem;
+            padding: 1.5rem;
             border-radius: 8px;
-            margin-bottom: 0.75rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            margin-top: 1rem;
         }
 
-        .loan-info {
-            flex: 1;
+        .stock-info-item {
+            text-align: center;
         }
 
-        .loan-name {
-            font-weight: 600;
-            color: #1e293b;
-            margin-bottom: 0.25rem;
-        }
-
-        .loan-date {
+        .stock-label {
             font-size: 0.85rem;
             color: #64748b;
+            margin-bottom: 0.5rem;
         }
 
-        .loan-status {
-            padding: 0.4rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-
-        .status-en-cours {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-
-        .status-retourne {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 3rem 1rem;
-            color: #94a3b8;
-        }
-
-        .empty-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
+        .stock-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #667eea;
         }
 
         @media (max-width: 968px) {
-            .content-layout {
+            .form-layout {
                 grid-template-columns: 1fr;
             }
 
-            .book-cover-section {
+            .image-upload-section {
                 position: relative;
                 top: 0;
             }
 
-            .book-title-main {
-                font-size: 1.8rem;
-            }
-
-            .info-grid {
+            .form-row {
                 grid-template-columns: 1fr;
-                gap: 1.5rem;
             }
 
-            .action-buttons {
-                flex-direction: column;
+            .form-actions {
+                flex-direction: column-reverse;
             }
 
             .btn {
                 width: 100%;
-            }
-
-            .header-actions {
-                width: 100%;
+                justify-content: center;
             }
         }
     </style>
@@ -431,194 +403,320 @@
 <body>
     <header>
         <div class="header-content">
-            <div class="header-left">
-                <a href="{% url 'books_index' %}" class="back-btn">← Catalogue</a>
-                <h1>Détails du livre</h1>
-            </div>
-            <div class="header-actions">
-                <a href="{% url 'edit_book' book.id %}" class="btn btn-warning">✏️ Modifier</a>
-                {% if book.copies_available > 0 %}
-                <a href="{% url 'add_loan' %}?book={{ book.id }}" class="btn btn-success">📖 Emprunter</a>
-                {% endif %}
-            </div>
+            <a href="{% if book.id %}{% url 'show_book' book.id %}{% else %}{% url 'books_list' %}{% endif %}" class="back-btn">← Retour</a>
+            <h1>{% if book.id %}Modifier le livre{% else %}Ajouter un nouveau livre{% endif %}</h1>
         </div>
     </header>
 
     <div class="container">
-        <!-- Bannière de disponibilité -->
-        {% if book.copies_available > 0 %}
-            {% if book.copies_available >= 5 %}
-            <div class="availability-banner banner-available">
-                <div>
-                    <span style="font-size: 1.5rem; margin-right: 0.5rem;">✓</span>
-                    <strong>Disponible</strong> - {{ book.copies_available }} exemplaire{{ book.copies_available|pluralize }} en stock
-                </div>
-                <a href="{% url 'add_loan' %}?book={{ book.id }}" class="btn btn-success" style="margin: 0;">Emprunter maintenant</a>
-            </div>
-            {% else %}
-            <div class="availability-banner banner-limited">
-                <div>
-                    <span style="font-size: 1.5rem; margin-right: 0.5rem;">⚠️</span>
-                    <strong>Stock limité</strong> - Plus que {{ book.copies_available }} exemplaire{{ book.copies_available|pluralize }}
-                </div>
-                <a href="{% url 'add_loan' %}?book={{ book.id }}" class="btn btn-warning" style="margin: 0;">Emprunter vite</a>
-            </div>
-            {% endif %}
-        {% else %}
-        <div class="availability-banner banner-unavailable">
+        {% if form.errors %}
+        <div class="alert alert-error">
+            <span style="font-size: 1.5rem;">⚠️</span>
             <div>
-                <span style="font-size: 1.5rem; margin-right: 0.5rem;">✕</span>
-                <strong>Indisponible</strong> - Tous les exemplaires sont empruntés
+                <strong>Erreur(s) dans le formulaire :</strong>
+                <ul style="margin-top: 0.5rem; margin-left: 1.5rem;">
+                    {% for field, errors in form.errors.items %}
+                        {% for error in errors %}
+                            <li>{{ field }} : {{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
             </div>
-            <button class="btn btn-secondary" style="margin: 0;" disabled>Bientôt disponible</button>
         </div>
         {% endif %}
 
-        <div class="content-layout">
-            <!-- Section Couverture -->
-            <div class="book-cover-section">
-                <div class="book-cover-card">
-                    <div class="book-cover">
-                        {% if book.image %}
-                            <img src="{{ book.image.url }}" alt="{{ book.title }}">
-                        {% else %}
-                            📚
-                        {% endif %}
-                    </div>
-                    
-                    <div class="price-tag">{{ form.price }} €</div>
-                    
-                    <div class="stock-info">
-                        <div class="stock-box">
-                            <div class="stock-value">{{ book.copies_available }}</div>
-                            <div class="stock-label">Disponibles</div>
+        <form method="post" enctype="multipart/form-data" action="{% url 'update_book' book.id %}">
+            {% csrf_token %}
+            
+            <div class="form-layout">
+                <!-- Section Image -->
+                <div class="image-upload-section">
+                    <div class="card">
+                        <div class="card-header">
+                            <span>🖼️</span>
+                            <span>Image de couverture</span>
                         </div>
-                        <div class="stock-box">
-                            <div class="stock-value">{{ book.copies_possessed }}</div>
-                            <div class="stock-label">Total</div>
-                        </div>
-                    </div>
-
-                    <div class="action-buttons" style="margin-top: 1.5rem;">
-                        <a href="{% url 'edit_book' book.id %}" class="btn btn-warning" style="width: 100%;">
-                            ✏️ Modifier
-                        </a>
-                        <button onclick="if(confirm('Supprimer ce livre ?')) document.getElementById('deleteForm').submit();" class="btn btn-danger" style="width: 100%;">
-                            🗑️ Supprimer
-                        </button>
-                    </div>
-
-                    <form id="deleteForm" action="{% url 'delete_book' book.id %}" method="post" style="display: none;">
-                        {% csrf_token %}
-                    </form>
-                </div>
-            </div>
-
-            <!-- Section Informations -->
-            <div>
-                <!-- Carte Informations principales -->
-                <div class="card">
-                    <div class="card-header">
-                        <span>📖</span>
-                        <span>Informations du livre</span>
-                    </div>
-                    <div class="card-body">
-                        <h2 class="book-title-main">{{ book.title }}</h2>
-                        <div class="book-author-main">
-                            <span>✍️</span>
-                            <span>par {{ book.author.name }}</span>
-                        </div>
-
-                        <div class="meta-tags">
-                            {% if book.category %}
-                            <span class="badge badge-category">{{ book.category.name }}</span>
-                            {% endif %}
-                            <span class="badge badge-language">{{ book.language }}</span>
-                        </div>
-
-                        <div class="divider"></div>
-
-                        <div class="info-grid">
-                            <div class="info-item">
-                                <div class="info-label">📚 ISBN</div>
-                                <div class="info-value">{{ book.isbn }}</div>
-                            </div>
-
-                            <div class="info-item">
-                                <div class="info-label">📅 Date de publication</div>
-                                <div class="info-value">{{ book.published_date|date:"d/m/Y" }}</div>
-                            </div>
-
-                            <div class="info-item">
-                                <div class="info-label">📄 Nombre de pages</div>
-                                <div class="info-value">{{ book.number_pages }} pages</div>
-                            </div>
-
-                            <div class="info-item">
-                                <div class="info-label">🌍 Langue</div>
-                                <div class="info-value">{{ book.language }}</div>
-                            </div>
-
-                            {% if book.edition %}
-                            <div class="info-item">
-                                <div class="info-label">📗 Édition</div>
-                                <div class="info-value">{{ book.edition }}</div>
-                            </div>
-                            {% endif %}
-
-                            <div class="info-item">
-                                <div class="info-label">⏰ Ajouté le</div>
-                                <div class="info-value">{{ book.created_at|date:"d/m/Y" }}</div>
-                            </div>
-                        </div>
-
-                        {% if book.description %}
-                        <div class="divider"></div>
-                        <div class="info-label" style="margin-bottom: 1rem;">📝 DESCRIPTION</div>
-                        <div class="description-section">
-                            {{ book.description|linebreaks }}
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-
-                <!-- Carte Historique des emprunts -->
-                <div class="card">
-                    <div class="card-header">
-                        <span>📋</span>
-                        <span>Historique des emprunts</span>
-                    </div>
-                    <div class="card-body">
-                        {% if loans %}
-                        <div class="loans-history">
-                            {% for loan in loans %}
-                            <div class="loan-item">
-                                <div class="loan-info">
-                                    <div class="loan-name">{{ loan.name_loaner }}</div>
-                                    <div class="loan-date">
-                                        Du {{ loan.created_at|date:"d/m/Y" }}
-                                        {% if loan.return_date %}
-                                            au {{ loan.return_date|date:"d/m/Y" }}
-                                        {% endif %}
+                        <div class="card-body">
+                            <div class="image-preview-container">
+                                <div class="image-preview" id="imagePreview" onclick="document.getElementById('id_image').click()">
+                                    {% if book.image %}
+                                        <img src="{{ book.image.url }}" alt="Couverture" id="previewImg">
+                                    {% else %}
+                                        <span id="previewIcon">📚</span>
+                                    {% endif %}
+                                    <div class="image-preview-overlay">
+                                        <span style="font-size: 2rem;">📷</span>
+                                        <span>Cliquez pour changer</span>
                                     </div>
                                 </div>
-                                <span class="loan-status status-{{ loan.status }}">
-                                    {{ loan.get_status_display|default:loan.status }}
-                                </span>
+                                
+                                <div class="file-input-wrapper">
+                                    {{ form.image }}
+                                    <label for="id_image" class="file-input-label">
+                                        📁 Choisir une image
+                                    </label>
+                                </div>
+                                
+                                {% if book.image %}
+                                <div class="current-image-name">
+                                    Image actuelle : {{ book.image.name }}
+                                </div>
+                                {% endif %}
+                                
+                                <div class="help-text" style="text-align: center; margin-top: 1rem;">
+                                    Formats acceptés : JPG, PNG, WebP<br>
+                                    Taille recommandée : 400x600px
+                                </div>
                             </div>
-                            {% endfor %}
                         </div>
-                        {% else %}
-                        <div class="empty-state">
-                            <div class="empty-icon">📭</div>
-                            <p><strong>Aucun emprunt</strong></p>
-                            <p>Ce livre n'a jamais été emprunté</p>
+                    </div>
+                </div>
+
+                <!-- Section Formulaire -->
+                <div>
+                    <div class="card">
+                        <div class="card-header">
+                            <span>📝</span>
+                            <span>Informations du livre</span>
                         </div>
-                        {% endif %}
+                        <div class="card-body">
+                            <div class="info-box">
+                                <div class="info-box-title">ℹ️ Information</div>
+                                <div class="info-box-text">
+                                    Les champs marqués d'un astérisque (*) sont obligatoires.
+                                </div>
+                            </div>
+
+                            <!-- Informations principales -->
+                            <div class="form-section">
+                                <div class="section-title">
+                                    <span>📖</span>
+                                    <span>Informations principales</span>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="id_isbn">
+                                            ISBN
+                                            <span class="required">*</span>
+                                        </label>
+                                        {{ form.isbn }}
+                                        <span class="help-text">Code ISBN à 13 chiffres (ex: 9782123456789)</span>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="id_title">
+                                            Titre
+                                            <span class="required">*</span>
+                                        </label>
+                                        {{ form.title }}
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="id_author">
+                                            Auteur
+                                            <span class="required">*</span>
+                                        </label>
+                                        {{ form.author }}
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="id_category">
+                                            Catégorie
+                                        </label>
+                                        {{ form.category }}
+                                    </div>
+                                </div>
+
+                                <div class="form-group form-group-full">
+                                    <label for="id_description">
+                                        Description
+                                    </label>
+                                    {{ form.description }}
+                                    <span class="help-text">Résumé ou présentation du livre</span>
+                                </div>
+                            </div>
+
+                            <!-- Détails de publication -->
+                            <div class="form-section">
+                                <div class="section-title">
+                                    <span>📅</span>
+                                    <span>Détails de publication</span>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="id_published_date">
+                                            Date de publication
+                                            <span class="required">*</span>
+                                        </label>
+                                        {{ form.published_date }}
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="id_edition">
+                                            Édition
+                                        </label>
+                                        {{ form.edition }}
+                                        <span class="help-text">Ex: Édition de luxe, 2e édition...</span>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="id_language">
+                                            Langue
+                                            <span class="required">*</span>
+                                        </label>
+                                        {{ form.language }}
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="id_number_pages">
+                                            Nombre de pages
+                                            <span class="required">*</span>
+                                        </label>
+                                        {{ form.number_pages }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Prix et stock -->
+                            <div class="form-section">
+                                <div class="section-title">
+                                    <span>💰</span>
+                                    <span>Prix et stock</span>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="id_price">
+                                            Prix (€)
+                                            <span class="required">*</span>
+                                        </label>
+                                        {{ form.price }}
+                                        <span class="help-text">Prix d'achat ou valeur du livre</span>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="id_copies_possessed">
+                                            Exemplaires possédés
+                                            <span class="required">*</span>
+                                        </label>
+                                        {{ form.copies_possessed }}
+                                        <span class="help-text">Nombre total d'exemplaires</span>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="id_copies_available">
+                                            Exemplaires disponibles
+                                            <span class="required">*</span>
+                                        </label>
+                                        {{ form.copies_available }}
+                                        <span class="help-text">Nombre actuellement disponible à l'emprunt</span>
+                                    </div>
+                                </div>
+
+                                {% if book.id %}
+                                <div class="stock-info-grid">
+                                    <div class="stock-info-item">
+                                        <div class="stock-label">Actuellement empruntés</div>
+                                        <div class="stock-value">{{ book.copies_possessed|add:"-"|add:book.copies_available|default:"0" }}</div>
+                                    </div>
+                                    <div class="stock-info-item">
+                                        <div class="stock-label">Taux de disponibilité</div>
+                                        <div class="stock-value">
+                                            {% widthratio book.copies_available book.copies_possessed 100 %}%
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="form-actions">
+                                <a href="{% if book.id %}{% url 'show_book' book.id %}{% else %}{% url 'books_list' %}{% endif %}" class="btn btn-secondary">
+                                    Annuler
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    {% if book.id %}
+                                        ✓ Enregistrer les modifications
+                                    {% else %}
+                                        ➕ Ajouter le livre
+                                    {% endif %}
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </form>
     </div>
+
+    <script>
+        // Prévisualisation de l'image
+        const imageInput = document.getElementById('id_image');
+        const imagePreview = document.getElementById('imagePreview');
+        const previewImg = document.getElementById('previewImg');
+        const previewIcon = document.getElementById('previewIcon');
+
+        if (imageInput) {
+            imageInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        if (previewImg) {
+                            previewImg.src = e.target.result;
+                        } else {
+                            if (previewIcon) previewIcon.style.display = 'none';
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.id = 'previewImg';
+                            imagePreview.insertBefore(img, imagePreview.firstChild);
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        // Validation du nombre d'exemplaires disponibles
+        const copiesPossessed = document.getElementById('id_copies_possessed');
+        const copiesAvailable = document.getElementById('id_copies_available');
+
+        if (copiesPossessed && copiesAvailable) {
+            copiesAvailable.addEventListener('input', function() {
+                const possessed = parseInt(copiesPossessed.value) || 0;
+                const available = parseInt(copiesAvailable.value) || 0;
+                
+                if (available > possessed) {
+                    copiesAvailable.setCustomValidity('Le nombre disponible ne peut pas dépasser le nombre possédé');
+                } else {
+                    copiesAvailable.setCustomValidity('');
+                }
+            });
+
+            copiesPossessed.addEventListener('input', function() {
+                copiesAvailable.dispatchEvent(new Event('input'));
+            });
+        }
+
+        // Validation ISBN (13 chiffres)
+        const isbnInput = document.getElementById('id_isbn');
+        if (isbnInput) {
+            isbnInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length > 13) {
+                    value = value.slice(0, 13);
+                }
+                e.target.value = value;
+            });
+        }
+    </script>
 </body>
 </html>

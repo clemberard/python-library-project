@@ -10,6 +10,12 @@ class Loan(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     return_date = models.DateTimeField(blank=True, null=True)
     status = models.CharField(max_length=100)
+    STATUS_CHOICES = [
+        ('en_cours', 'En cours'),
+        ('retourne', 'Retourné'),
+        ('en_retard', 'En retard')
+    ]
+    status = models.CharField(max_length=100, choices=STATUS_CHOICES, default='pending')
     commentary_librarian = models.TextField(blank=True, null=True)
     
     # foreign keys
