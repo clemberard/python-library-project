@@ -45,6 +45,7 @@
 </head>
 <body>
     <h1>Créer un nouvel auteur</h1>
+    <a href="/authors/">Retour</a>
     <form method="POST" action="/authors/create/">
         {% csrf_token %}
         {{ form }}

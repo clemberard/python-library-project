@@ -50,7 +50,7 @@
             <tbody>
                 {% for author in authors %}
                     <tr>
-                        <td>{{ author.name }}</td>
+                        <td>{{ author.first_name }} {{ author.last_name }}</td>
                         <td>{{ author.birth_date }}</td>
                         <td>{{ author.nationality }}</td>
                         <td><a href="{% url 'show_author' author.id %}">Voir les détails</a></td>

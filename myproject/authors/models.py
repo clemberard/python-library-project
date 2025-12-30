@@ -10,7 +10,7 @@ class Author(models.Model):
     biography = models.TextField(blank=True, null=True)
     death_date = models.DateField(blank=True, null=True)
     website = models.URLField(blank=True, null=True)
-    photo = models.BinaryField(blank=True, null=True)
+    photo = models.ImageField(blank=True, null=True)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"

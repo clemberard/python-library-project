@@ -29,6 +29,11 @@ class BookForm(forms.ModelForm):
             
         if 'copies_available' in cleaned_data:
             self.clean_copies_available()
+            if 'copies_possessed' in cleaned_data:
+                self.clean_books_available()
+            
+        if 'number_pages' in cleaned_data:
+            self.clean_number_pages()
 
     def clean_price(self):
         price = self.cleaned_data.get('price')

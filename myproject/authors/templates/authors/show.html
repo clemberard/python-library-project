@@ -7,9 +7,16 @@
 </head>
 <body>
     <h1>Author Details</h1>
-    <p><strong>Nom:</strong> {{ author.name }}</p>
+    <p><strong>Nom:</strong> {{ author }}</p>
     <p><strong>Date de naissance:</strong> {{ author.birth_date }}</p>
     <p><strong>Nationalité:</strong> {{ author.nationality }}</p>
+    <p><strong>Biographie:</strong> {{ author.biography }}</p>
+    <p><strong>Date de décès:</strong> {{ author.death_date }}</p>
+    <p><strong>Site web:</strong> <a href="{{ author.website }}">{{ author.website }}</a></p>
+    {% if author.photo %}
+        <p><strong>Photo:</strong></p>
+        <img src="{{ author.photo.url }}" alt="Photo of {{ author }}" style="max-width:200px; height:auto;">
+    {% endif %}
 
     <div>
         <h2>Les livres de cet auteur</h2>
