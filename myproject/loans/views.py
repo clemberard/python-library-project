@@ -72,6 +72,7 @@ def create_loan(request):
         form = LoanForm(request.POST)
         if form.is_valid():
             new_loan = form.save()
+            decrement_book(new_loan.book.id)
             return render(request, 'loans/show.html', {'loan': new_loan})
         else:
             return render(request, 'loans/new.html', {'form': form})
@@ -181,3 +182,9 @@ def return_loan(request, loan_id):
     loan.status = 'retourne'
     loan.save()
     return render(request, 'loans/show.html', {'loan': loan})
+
+def decrement_book(book_id):
+    book = Book.objects.get(id=book_id)
+    if (book.copies_available > 0):
+        book.copies_available -= 1
+        book.save()
