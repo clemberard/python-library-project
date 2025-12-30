@@ -52,7 +52,10 @@ def new_loan(request):
     Returns:
         Rendered HTML page for creating a new loan.
     """
-    form = LoanForm()
+    if request.GET.get('book'):
+        form = LoanForm(initial={'book': request.GET.get('book')})
+    else:
+        form = LoanForm()
     return render(request, 'loans/new.html', {'form': form})
 
 def create_loan(request):
@@ -175,9 +178,6 @@ def return_loan(request, loan_id):
         Rendered HTML page after returning a specific loan.
     """
     loan = Loan.objects.get(id=loan_id)
-    if request.method == 'POST':
-        loan.status = 'retourne'
-        loan.save()
-        return render(request, 'loans/show.html', {'loan': loan})
-    else:
-        return render(request, 'loans/return.html', {'loan': loan})
+    loan.status = 'retourne'
+    loan.save()
+    return render(request, 'loans/show.html', {'loan': loan})
