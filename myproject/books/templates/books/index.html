@@ -1,68 +1,668 @@
+{% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Books</title>
+    <title>Catalogue des Livres - Bibliothèque</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        .book {
-            border: 1px solid #ddd;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-        }
-        h1 {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
             color: #333;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .controls {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .search-filter-group {
+            display: flex;
+            gap: 1rem;
+            flex: 1;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border 0.3s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
+
+        select {
+            padding: 0.75rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            background: white;
+            cursor: pointer;
+            transition: border 0.3s;
+            min-width: 150px;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .view-toggle {
+            display: flex;
+            background: #f1f5f9;
+            border-radius: 8px;
+            padding: 0.25rem;
+        }
+
+        .view-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.3s;
+            font-size: 1.2rem;
+        }
+
+        .view-btn.active {
+            background: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        /* Vue Grille */
+        .books-grid {
+            display: none;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .book-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .book-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .book-cover {
+            width: 100%;
+            height: 350px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: white;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .book-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .availability-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+        }
+
+        .badge-available {
+            background: rgba(16, 185, 129, 0.9);
+            color: white;
+        }
+
+        .badge-limited {
+            background: rgba(245, 158, 11, 0.9);
+            color: white;
+        }
+
+        .badge-unavailable {
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+        }
+
+        .book-info {
+            padding: 1.5rem;
+        }
+
+        .book-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .book-author {
+            color: #667eea;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .book-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1rem;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .book-price {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .book-stock {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        .book-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex: 1;
+            text-decoration: none;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .btn-view {
+            background: #e0e7ff;
+            color: #4338ca;
+        }
+
+        .btn-edit {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .btn-small:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* Vue Liste */
+        .books-list {
+            display: none;
+        }
+
+        .books-list.active {
+            display: block;
+        }
+
+        .books-grid.active {
+            display: grid;
+        }
+
+        .list-item {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: grid;
+            grid-template-columns: 120px 1fr auto;
+            gap: 1.5rem;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .list-item:hover {
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transform: translateX(5px);
+        }
+
+        .list-cover {
+            width: 120px;
+            height: 170px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            overflow: hidden;
+        }
+
+        .list-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .list-info {
+            flex: 1;
+        }
+
+        .list-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+
+        .list-author {
+            color: #667eea;
+            font-size: 1.1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .list-details {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        .list-detail-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .list-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            min-width: 120px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-filter-group {
+                flex-direction: column;
+            }
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .books-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .list-item {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .list-cover {
+                margin: 0 auto;
+            }
+
+            .list-details {
+                justify-content: center;
+            }
+
+            .list-actions {
+                flex-direction: row;
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>Books</h1>
+    <header>
+        <div class="header-content">
+            <h1>📚 Catalogue des Livres</h1>
+            <p class="subtitle">Explorez notre collection complète</p>
+        </div>
+    </header>
 
-    <input type="text" id="search" placeholder="Search books..." onkeyup="filterBooks()">
-
-    <a href="{% url 'new_book' %}">
-        Créer un livre
-    </a>
-    
-    {% if books %}
-        {% for book in books %}
-            <div class="book">
-                <h2>{{ book.title }}</h2>
-                <p>
-                    <strong>Auteur:</strong> 
-                    <a href="{% url 'show_author' book.author.id %}">
-                        {{ book.author.name }}
-                    </a>
-                </p>
-                <p><strong>Prix:</strong> {{ book.price }}</p>
-                <p><strong>Date de publication:</strong> {{ book.published_date }}</p>
-                <a href="{% url 'show_book' book.id %}">Voir les détails</a>
+    <div class="container">
+        <!-- Statistiques -->
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value">{{ total_books }}</div>
+                <div class="stat-label">Livres au catalogue</div>
             </div>
-        {% endfor %}
-    {% else %}
-        <p>No books available.</p>
-    {% endif %}
+            <div class="stat-card">
+                <div class="stat-value">{{ available_books }}</div>
+                <div class="stat-label">Disponibles</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ total_authors }}</div>
+                <div class="stat-label">Auteurs</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ total_categories }}</div>
+                <div class="stat-label">Catégories</div>
+            </div>
+        </div>
+
+        <!-- Contrôles -->
+        <div class="controls">
+            <div class="search-filter-group">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="searchInput" placeholder="Rechercher un livre, auteur, ISBN...">
+                </div>
+                <select id="categoryFilter">
+                    <option value="">Toutes les catégories</option>
+                    {% for category in categories %}
+                    <option value="{{ category.name }}">{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div style="display: flex; gap: 1rem; align-items: center;">
+                <div class="view-toggle">
+                    <button class="view-btn active" id="gridViewBtn" onclick="switchView('grid')">⊞</button>
+                    <button class="view-btn" id="listViewBtn" onclick="switchView('list')">☰</button>
+                </div>
+                <a href="{% url 'new_book' %}" class="btn btn-primary">➕ Nouveau livre</a>
+            </div>
+        </div>
+
+        {% if books %}
+        <!-- Vue Grille -->
+        <div class="books-grid active" id="gridView">
+            {% for book in books %}
+            <div class="book-card" 
+                 data-search="{{ book.title|lower }} {{ book.author.name|lower }} {{ book.isbn }}"
+                 data-category="{{ book.category.name|default:'' }}"
+                 data-availability="{% if book.copies_available >= 5 %}available{% elif book.copies_available > 0 %}limited{% else %}unavailable{% endif %}"
+                 onclick="window.location.href='{% url 'show_book' book.id %}'">
+                <div class="book-cover">
+                    {% if book.image %}
+                        <img src="{{ book.image.url }}" alt="{{ book.title }}">
+                    {% else %}
+                        📚
+                    {% endif %}
+                    <span class="availability-badge {% if book.copies_available >= 5 %}badge-available{% elif book.copies_available > 0 %}badge-limited{% else %}badge-unavailable{% endif %}">
+                        {% if book.copies_available > 0 %}
+                            {{ book.copies_available }} dispo
+                        {% else %}
+                            Emprunté
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="book-info">
+                    <h3 class="book-title">{{ book.title }}</h3>
+                    <p class="book-author">{{ book.author.name }}</p>
+                    <div class="book-meta">
+                        <span class="book-price">{{ book.price }} €</span>
+                        <span class="book-stock">{{ book.copies_available }}/{{ book.copies_possessed }}</span>
+                    </div>
+                    <div class="book-actions" onclick="event.stopPropagation()">
+                        <a href="{% url 'show_book' book.id %}" class="btn-small btn-view">👁️ Voir</a>
+                        <a href="{% url 'edit_book' book.id %}" class="btn-small btn-edit">✏️ Modifier</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Vue Liste -->
+        <div class="books-list" id="listView">
+            {% for book in books %}
+            <div class="list-item"
+                 data-search="{{ book.title|lower }} {{ book.author.name|lower }} {{ book.isbn }}"
+                 data-category="{{ book.category.name|default:'' }}"
+                 data-availability="{% if book.copies_available >= 5 %}available{% elif book.copies_available > 0 %}limited{% else %}unavailable{% endif %}">
+                <div class="list-cover">
+                    {% if book.image %}
+                        <img src="{{ book.image.url }}" alt="{{ book.title }}">
+                    {% else %}
+                        📚
+                    {% endif %}
+                </div>
+                <div class="list-info">
+                    <h3 class="list-title">{{ book.title }}</h3>
+                    <p class="list-author">{{ book.author.name }}</p>
+                    <div class="list-details">
+                        <div class="list-detail-item">
+                            <span>📚</span>
+                            <span>ISBN: {{ book.isbn }}</span>
+                        </div>
+                        <div class="list-detail-item">
+                            <span>🏷️</span>
+                            <span>{{ book.category.name|default:"Non catégorisé" }}</span>
+                        </div>
+                        <div class="list-detail-item">
+                            <span>📄</span>
+                            <span>{{ book.number_pages }} pages</span>
+                        </div>
+                        <div class="list-detail-item">
+                            <span>💰</span>
+                            <span>{{ book.price }} €</span>
+                        </div>
+                        <div class="list-detail-item">
+                            <span>📦</span>
+                            <span>{{ book.copies_available }}/{{ book.copies_possessed }} disponibles</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="list-actions">
+                    <a href="{% url 'show_book' book.id %}" class="btn-small btn-view">👁️ Voir</a>
+                    <a href="{% url 'edit_book' book.id %}" class="btn-small btn-edit">✏️ Modifier</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">📚</div>
+            <h2>Aucun livre dans le catalogue</h2>
+            <p>Commencez par ajouter votre premier livre</p>
+            <br>
+            <a href="{% url 'new_book' %}" class="btn btn-primary">➕ Ajouter le premier livre</a>
+        </div>
+        {% endif %}
+    </div>
 
     <script>
-        function filterBooks() {
-            const input = document.getElementById('search');
-            const filter = input.value.toLowerCase();
-            const books = document.getElementsByClassName('book');
+        // Changement de vue
+        function switchView(view) {
+            const gridView = document.getElementById('gridView');
+            const listView = document.getElementById('listView');
+            const gridBtn = document.getElementById('gridViewBtn');
+            const listBtn = document.getElementById('listViewBtn');
 
-            for (let i = 0; i < books.length; i++) {
-                const title = books[i].getElementsByTagName('h2')[0];
-                if (title.innerHTML.toLowerCase().indexOf(filter) > -1) {
-                    books[i].style.display = "";
-                } else {
-                    books[i].style.display = "none";
-                }
+            if (view === 'grid') {
+                gridView.classList.add('active');
+                listView.classList.remove('active');
+                gridBtn.classList.add('active');
+                listBtn.classList.remove('active');
+            } else {
+                gridView.classList.remove('active');
+                listView.classList.add('active');
+                gridBtn.classList.remove('active');
+                listBtn.classList.add('active');
             }
         }
+
+        // Filtres
+        const searchInput = document.getElementById('searchInput');
+        const categoryFilter = document.getElementById('categoryFilter');
+
+        function filterBooks() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const categoryValue = categoryFilter.value;
+
+            const gridItems = document.querySelectorAll('.books-grid .book-card');
+            const listItems = document.querySelectorAll('.books-list .list-item');
+            const allItems = [...gridItems, ...listItems];
+
+            allItems.forEach(item => {
+                const searchData = item.getAttribute('data-search');
+                const categoryData = item.getAttribute('data-category');
+                const availabilityData = item.getAttribute('data-availability');
+
+                const matchesSearch = searchData.includes(searchTerm);
+                const matchesCategory = !categoryValue || categoryData === categoryValue;
+                const matchesAvailability = !availabilityValue || availabilityData === availabilityValue;
+
+                item.style.display = (matchesSearch && matchesCategory && matchesAvailability) ? '' : 'none';
+            });
+        }
+
+        searchInput.addEventListener('input', filterBooks);
+        categoryFilter.addEventListener('change', filterBooks);
     </script>
 </body>
 </html>

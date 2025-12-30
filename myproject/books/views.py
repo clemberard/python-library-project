@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from books.models import Book
 from authors.models import Author
 from loans.models import Loan
+from categories.models import Category
 from .forms import BookForm
 
 # Create your views here.
@@ -17,8 +18,22 @@ def books_view(request):
         Rendered HTML page with a list of books.
     """
     books = Book.objects.all()
-    
-    return render(request, 'books/index.html', {'books': books})
+    total_books = books.count()
+    available_books = books.filter(copies_available__gt=0).count()
+    total_authors = Author.objects.count()
+    categories = Category.objects.distinct().all()
+    total_categories = categories.count()
+    status_loans = Loan.STATUS_CHOICES
+
+    return render(request, 'books/index.html', {
+        'books': books, 
+        'total_books': total_books, 
+        'available_books': available_books, 
+        'total_authors': total_authors, 
+        'categories': categories,
+        'total_categories': total_categories,
+        'status_loans': status_loans
+        })
 
 def show_book(request, book_id):
     """_summary_
