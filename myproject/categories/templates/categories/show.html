@@ -1,0 +1,10 @@
+<div class="category-detail">
+    <h1>{{ category.name }}</h1>
+
+    <div class="category-info">
+        <p><strong>Description:</strong> {{ category.description }}</p>
+        <p><strong>Image:</strong> {{ category.image }}</p>
+    </div>
+
+    <a href="{% url 'categories_index' %}">Back to Categories List</a>
+</div>

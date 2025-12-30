@@ -19,7 +19,10 @@ from django.urls import path
 from django.urls import include
 
 urlpatterns = [
+    #path('', __import__('django.views.generic', fromlist=['TemplateView']).TemplateView.as_view(template_name='index.html'), name='index'),
     path('admin/', admin.site.urls),
     path('books/', include('books.urls')),
     path('authors/', include('authors.urls')),
+    path('categories/', include('categories.urls')),
+    path('loans/', include('loans.urls')),
 ]

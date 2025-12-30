@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catégories</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .category {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        h1 {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>Catégories</h1>
+
+    <a href="{% url 'new_category' %}">
+        Créer une nouvelle catégorie
+    </a>
+
+    {% if categories %}
+        {% for category in categories %}
+            <div class="category">
+                <h2>{{ category.name }}</h2>
+                <p>{{ category.description }}</p>
+            </div>
+        {% endfor %}
+
+    {% else %}
+        <p>Pas de catégories.</p>
+    {% endif %}
+</body>
+</html>

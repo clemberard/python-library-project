@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nouvel Emprunt - Bibliothèque</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .back-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: background 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        h1 {
+            font-size: 1.8rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        .form-header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .form-header h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-header p {
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+
+        .form-body {
+            padding: 2.5rem;
+        }
+
+        .form-section {
+            margin-bottom: 2.5rem;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            color: #667eea;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .required {
+            color: #ef4444;
+            margin-left: 0.25rem;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="date"],
+        input[type="datetime-local"],
+        select,
+        textarea {
+            padding: 0.875rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23667eea' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            padding-right: 3rem;
+        }
+
+        .help-text {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 0.5rem;
+        }
+
+        .search-book {
+            position: relative;
+        }
+
+        .book-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #667eea;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 100;
+            display: none;
+        }
+
+        .book-suggestions.active {
+            display: block;
+        }
+
+        .book-suggestion-item {
+            padding: 0.875rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .book-suggestion-item:hover {
+            background: #f8fafc;
+        }
+
+        .book-suggestion-item:last-child {
+            border-bottom: none;
+        }
+
+        .book-title {
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .book-author {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            padding-top: 2rem;
+            border-top: 2px solid #f1f5f9;
+        }
+
+        .btn {
+            padding: 0.875rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e1;
+        }
+
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid #ef4444;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border-left: 4px solid #10b981;
+        }
+
+        .info-box {
+            background: #f0f9ff;
+            border-left: 4px solid #3b82f6;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .info-box-title {
+            font-weight: 600;
+            color: #1e40af;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-box-text {
+            color: #1e3a8a;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .form-body {
+                padding: 1.5rem;
+            }
+
+            .form-actions {
+                flex-direction: column-reverse;
+            }
+
+            .btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="{% url 'loans_index' %}" class="back-btn">← Retour</a>
+            <h1>📚 Nouvel Emprunt</h1>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="form-card">
+            <div class="form-header">
+                <h2>Enregistrer un nouvel emprunt</h2>
+                <p>Complétez les informations ci-dessous pour créer un emprunt</p>
+            </div>
+
+            <form method="post" class="form-body" action="{% url 'create_loan' %}">
+                {% csrf_token %}
+
+                {% if form.errors %}
+                <div class="alert alert-error">
+                    <span>⚠️</span>
+                    <div>
+                        <strong>Erreur(s) dans le formulaire :</strong>
+                        <ul style="margin-top: 0.5rem; margin-left: 1.5rem;">
+                            {% for field, errors in form.errors.items %}
+                                {% for error in errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="info-box">
+                    <div class="info-box-title">ℹ️ Information</div>
+                    <div class="info-box-text">
+                        La durée standard d'emprunt est de 3 semaines. Les champs marqués d'un astérisque (*) sont obligatoires.
+                    </div>
+                </div>
+
+                <!-- Section Emprunteur -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <span>👤</span>
+                        <span>Informations de l'emprunteur</span>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="id_library_card_number">
+                                Numéro de carte bibliothèque
+                                <span class="required">*</span>
+                            </label>
+                            {{ form.library_card_number }}
+                            <span class="help-text">Format: BXXXXX (ex: B12345)</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="id_name_loaner">
+                                Nom complet
+                                <span class="required">*</span>
+                            </label>
+                            {{ form.name_loaner }}
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="id_email_loaner">
+                                Adresse email
+                                <span class="required">*</span>
+                            </label>
+                            {{ form.email_loaner }}
+                            <span class="help-text">Pour les notifications de rappel</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section Livre -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <span>📖</span>
+                        <span>Sélection du livre</span>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group search-book">
+                            <label for="id_book">
+                                Livre à emprunter
+                                <span class="required">*</span>
+                            </label>
+                            {{ form.book }}
+                            <span class="help-text">Recherchez et sélectionnez un livre disponible</span>
+                            <div class="book-suggestions" id="bookSuggestions"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section Dates et Statut -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <span>📅</span>
+                        <span>Dates et statut</span>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="id_return_date">
+                                Date de retour prévue
+                            </label>
+                            {{ form.return_date }}
+                            <span class="help-text">Laissez vide pour calculer automatiquement (3 semaines)</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="id_status">
+                                Statut
+                                <span class="required">*</span>
+                            </label>
+                            {{ form.status }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section Commentaire -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <span>💬</span>
+                        <span>Commentaires</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_commentary_librarian">
+                            Commentaire du bibliothécaire
+                        </label>
+                        {{ form.commentary_librarian }}
+                        <span class="help-text">Notes internes, conditions particulières, etc.</span>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="form-actions">
+                    <a href="{% url 'loans_index' %}" class="btn btn-secondary">Annuler</a>
+                    <button type="submit" class="btn btn-primary">✓ Enregistrer l'emprunt</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Auto-calcul de la date de retour (3 semaines après aujourd'hui)
+        document.addEventListener('DOMContentLoaded', function() {
+            const returnDateInput = document.getElementById('id_return_date');
+            
+            if (returnDateInput && !returnDateInput.value) {
+                const today = new Date();
+                today.setDate(today.getDate() + 21); // Ajoute 21 jours
+                const formattedDate = today.toISOString().split('T')[0];
+                returnDateInput.value = formattedDate;
+            }
+        });
+
+        // Validation du format de numéro de carte
+        const cardNumberInput = document.getElementById('id_library_card_number');
+        if (cardNumberInput) {
+            cardNumberInput.addEventListener('input', function(e) {
+                let value = e.target.value.toUpperCase();
+                if (value && !value.startsWith('B')) {
+                    value = 'B' + value;
+                }
+                e.target.value = value;
+            });
+        }
+    </script>
+</body>
+</html>

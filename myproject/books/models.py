@@ -15,7 +15,7 @@ class Book(models.Model):
     language = models.CharField(max_length=30)
     number_pages = models.IntegerField(default=0)
     edition = models.CharField(max_length=100, blank=True, null=True)
-    image = models.BinaryField(blank=True, null=True)
+    image = models.ImageField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     
     # foreign keys

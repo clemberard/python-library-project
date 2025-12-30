@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Créer un livre</title>
+    <title>Créer une catégorie</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -44,9 +44,9 @@
     </style>
 </head>
 <body>
-    <h1>Créer un nouveau livre</h1>
-    <a href="/books/" style="margin-bottom: 20px; display: inline-block;">&larr; Retour à la liste des livres</a>
-    <form method="POST" action="/books/create/">
+    <h1>Créer une nouvelle catégorie</h1>
+    <a href="/categories/" style="margin-bottom: 20px; display: inline-block;">&larr; Retour à la liste des catégories</a>
+    <form method="POST" action="/categories/create/">
         {% csrf_token %}
         {{ form }}
         <button type="submit">Créer</button>

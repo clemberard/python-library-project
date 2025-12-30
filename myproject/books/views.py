@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from books.models import Book
 from authors.models import Author
+from .forms import BookForm
 
 # Create your views here.
 def books_view(request):
@@ -42,9 +43,9 @@ def new_view(request):
     Returns:
         HttpResponse: The HTTP response for the new book page.
     """
-    authors = Author.objects.all()
+    form = BookForm()
 
-    return render(request, 'books/new.html', {'authors': authors})
+    return render(request, 'books/new.html', {'form': form})
 
 def create_view(request):
     """_summary_

@@ -1,0 +1,613 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Détail Emprunt #{{ loan.id }} - Bibliothèque</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .back-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: background 0.3s;
+            font-size: 0.9rem;
+            display: inline-block;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        h1 {
+            font-size: 1.8rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .status-banner {
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .status-en-cours {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            color: #1e40af;
+            border-left: 5px solid #3b82f6;
+        }
+
+        .status-retourne {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            color: #065f46;
+            border-left: 5px solid #10b981;
+        }
+
+        .status-retard {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: #991b1b;
+            border-left: 5px solid #ef4444;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            font-size: 1.3rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-body {
+            padding: 2rem;
+        }
+
+        .info-group {
+            margin-bottom: 2rem;
+        }
+
+        .info-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .info-value {
+            font-size: 1.1rem;
+            color: #1e293b;
+            font-weight: 500;
+        }
+
+        .info-value-large {
+            font-size: 1.3rem;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .divider {
+            height: 1px;
+            background: #e2e8f0;
+            margin: 1.5rem 0;
+        }
+
+        .book-preview {
+            display: flex;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+        }
+
+        .book-cover {
+            width: 100px;
+            height: 140px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            flex-shrink: 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .book-info {
+            flex: 1;
+        }
+
+        .book-title {
+            font-size: 1.3rem;
+            color: #1e293b;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .book-author {
+            font-size: 1rem;
+            color: #64748b;
+            margin-bottom: 0.75rem;
+        }
+
+        .book-meta {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 1.5rem;
+        }
+
+        .timeline-item:last-child {
+            padding-bottom: 0;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -1.875rem;
+            top: 0.5rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #667eea;
+            border: 3px solid white;
+            box-shadow: 0 0 0 2px #667eea;
+        }
+
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            left: -1.5rem;
+            top: 1.25rem;
+            width: 2px;
+            height: calc(100% - 0.5rem);
+            background: #e2e8f0;
+        }
+
+        .timeline-item:last-child::after {
+            display: none;
+        }
+
+        .timeline-date {
+            font-size: 0.85rem;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .timeline-content {
+            margin-top: 0.25rem;
+            color: #475569;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-box {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        .commentary-box {
+            background: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            padding: 1.25rem;
+            border-radius: 8px;
+            margin-top: 1.5rem;
+        }
+
+        .commentary-title {
+            font-weight: 600;
+            color: #92400e;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .commentary-text {
+            color: #78350f;
+            line-height: 1.6;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .alert-warning {
+            background: #fef3c7;
+            color: #92400e;
+            border-left: 4px solid #f59e0b;
+        }
+
+        @media (max-width: 968px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .book-preview {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .action-buttons {
+                width: 100%;
+            }
+
+            .btn {
+                flex: 1;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="header-left">
+                <a href="{% url 'loans_index' %}" class="back-btn">← Retour à la liste</a>
+                <h1>Emprunt #{{ loan.id }}</h1>
+            </div>
+            <div class="header-actions action-buttons">
+                <a href="{% url 'edit_loan' loan.id %}" class="btn btn-warning">✏️ Modifier</a>
+                {% if loan.status == 'en_cours' %}
+                <a href="{% url 'loan_return' loan.id %}" class="btn btn-success">✓ Marquer comme retourné</a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Bannière de statut -->
+        <div class="status-banner status-{{ loan.status }}">
+            {% if loan.status == 'en_cours' %}
+                <span>⏳</span>
+                <span>Emprunt en cours</span>
+            {% elif loan.status == 'retourne' %}
+                <span>✓</span>
+                <span>Livre retourné</span>
+            {% elif loan.status == 'retard' %}
+                <span>⚠️</span>
+                <span>Emprunt en retard</span>
+            {% endif %}
+        </div>
+
+        <!-- Alerte retard si nécessaire -->
+        {% if loan.status == 'retard' or loan.return_date and loan.return_date < today and loan.status == 'en_cours' %}
+        <div class="alert alert-warning">
+            <span>⚠️</span>
+            <div>
+                <strong>Attention :</strong> Ce livre aurait dû être retourné le {{ loan.return_date|date:"d/m/Y" }}. 
+                Veuillez contacter l'emprunteur dans les plus brefs délais.
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="content-grid">
+            <!-- Colonne principale -->
+            <div>
+                <!-- Carte du livre -->
+                <div class="card">
+                    <div class="card-header">
+                        <span>📖</span>
+                        <span>Livre emprunté</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="book-preview">
+                            <div class="book-cover">📚</div>
+                            <div class="book-info">
+                                <div class="book-title">{{ loan.book.title }}</div>
+                                <div class="book-author">par {{ loan.book.author }}</div>
+                                <div class="book-meta">
+                                    <div class="meta-item">
+                                        <span>📅</span>
+                                        <span>{{ loan.book.publication_year|default:"N/A" }}</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <span>🏷️</span>
+                                        <span>{{ loan.book.genre|default:"Non spécifié" }}</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <span>📖</span>
+                                        <span>ISBN: {{ loan.book.isbn|default:"N/A" }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="divider"></div>
+
+                        <div class="info-group">
+                            <div class="info-label">👤 Emprunteur</div>
+                            <div class="info-value-large">{{ loan.name_loaner }}</div>
+                        </div>
+
+                        <div class="stats-grid">
+                            <div class="stat-box">
+                                <div class="stat-value">{{ loan.library_card_number }}</div>
+                                <div class="stat-label">N° Carte</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-value">
+                                    {% if loan.return_date and loan.created_at %}
+                                        {{ loan.return_date|timeuntil:loan.created_at }}
+                                    {% else %}
+                                        21j
+                                    {% endif %}
+                                </div>
+                                <div class="stat-label">Durée</div>
+                            </div>
+                        </div>
+
+                        <div class="info-group">
+                            <div class="info-label">📧 Email</div>
+                            <div class="info-value">
+                                <a href="mailto:{{ loan.email_loaner }}" style="color: #667eea; text-decoration: none;">
+                                    {{ loan.email_loaner }}
+                                </a>
+                            </div>
+                        </div>
+
+                        {% if loan.commentary_librarian %}
+                        <div class="commentary-box">
+                            <div class="commentary-title">
+                                <span>💬</span>
+                                <span>Commentaire du bibliothécaire</span>
+                            </div>
+                            <div class="commentary-text">{{ loan.commentary_librarian }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Colonne latérale -->
+            <div>
+                <!-- Carte chronologie -->
+                <div class="card">
+                    <div class="card-header">
+                        <span>📅</span>
+                        <span>Chronologie</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <div class="timeline-date">{{ loan.created_at|date:"d/m/Y à H:i" }}</div>
+                                <div class="timeline-content">
+                                    <strong>Emprunt créé</strong><br>
+                                    Livre emprunté par {{ loan.name_loaner }}
+                                </div>
+                            </div>
+
+                            {% if loan.return_date %}
+                            <div class="timeline-item">
+                                <div class="timeline-date">{{ loan.return_date|date:"d/m/Y" }}</div>
+                                <div class="timeline-content">
+                                    <strong>Retour prévu</strong><br>
+                                    {% if loan.status == 'retourne' %}
+                                        Livre retourné à temps
+                                    {% elif loan.status == 'retard' %}
+                                        Date dépassée - En retard
+                                    {% else %}
+                                        Date limite de retour
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if loan.status == 'retourne' %}
+                            <div class="timeline-item">
+                                <div class="timeline-date">Retourné</div>
+                                <div class="timeline-content">
+                                    <strong>Emprunt terminé</strong><br>
+                                    Le livre a été rendu à la bibliothèque
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Carte actions rapides -->
+                <div class="card" style="margin-top: 2rem;">
+                    <div class="card-header">
+                        <span>⚡</span>
+                        <span>Actions rapides</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="action-buttons" style="flex-direction: column;">
+                            <a href="mailto:{{ loan.email_loaner }}" class="btn btn-primary">
+                                ✉️ Envoyer un email
+                            </a>
+                            <a href="{% url 'edit_loan' loan.id %}" class="btn btn-warning">
+                                ✏️ Modifier l'emprunt
+                            </a>
+                            {% if loan.status == 'en_cours' %}
+                            <a href="{% url 'loan_return' loan.id %}" class="btn btn-success">
+                                ✓ Marquer retourné
+                            </a>
+                            {% endif %}
+                            <a href="#" onclick="if(confirm('Êtes-vous sûr de vouloir supprimer cet emprunt ?')) { document.getElementById('deleteForm').submit(); }" class="btn btn-danger">
+                                🗑️ Supprimer
+                            </a>
+                        </div>
+
+                        <form id="deleteForm" action="{% url 'delete_loan' loan.id %}" method="post" style="display: none;">
+                            {% csrf_token %}
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
