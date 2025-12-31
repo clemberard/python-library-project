@@ -42,7 +42,10 @@ def new_view(request):
     """
     Affiche le formulaire pour créer un nouveau livre.
     """
-    form = BookForm()
+    if request.GET.get('author'):
+        form = BookForm(initial={'author': request.GET.get('author')})
+    else:
+        form = BookForm()
 
     return render(request, 'books/new.html', {'form': form})
 
