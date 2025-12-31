@@ -1,41 +1,715 @@
+{% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Author Details</title>
+    <title>{{ author.first_name }} {{ author.last_name }} - Bibliothèque</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        header {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            padding: 1.5rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .back-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: background 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        h1 {
+            font-size: 1.8rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .author-hero {
+            background: white;
+            border-radius: 15px;
+            padding: 3rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            display: flex;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .author-photo-large {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 6rem;
+            overflow: hidden;
+            border: 6px solid #fef3c7;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            flex-shrink: 0;
+        }
+
+        .author-photo-large img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .author-main-info {
+            flex: 1;
+        }
+
+        .author-name-large {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .author-meta {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.1rem;
+            color: #64748b;
+        }
+
+        .meta-icon {
+            font-size: 1.3rem;
+        }
+
+        .status-badge-large {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .badge-living {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            color: #065f46;
+        }
+
+        .badge-deceased {
+            background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+            color: #3730a3;
+        }
+
+        .content-layout {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 2rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            padding: 1.5rem;
+            font-size: 1.3rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-body {
+            padding: 2rem;
+        }
+
+        .biography-text {
+            line-height: 1.8;
+            color: #475569;
+            font-size: 1.05rem;
+            white-space: pre-line;
+        }
+
+        .info-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .info-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .info-value {
+            font-size: 1.1rem;
+            color: #1e293b;
+            font-weight: 500;
+        }
+
+        .website-link {
+            color: #f59e0b;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .website-link:hover {
+            color: #d97706;
+            transform: translateX(5px);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        .stat-box {
+            background: #fef3c7;
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #f59e0b;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #92400e;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .books-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .book-item {
+            background: #f8fafc;
+            padding: 1.25rem;
+            border-radius: 10px;
+            display: flex;
+            gap: 1rem;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .book-item:hover {
+            background: #fef3c7;
+            transform: translateX(5px);
+        }
+
+        .book-mini-cover {
+            width: 60px;
+            height: 85px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .book-mini-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .book-item-info {
+            flex: 1;
+        }
+
+        .book-item-title {
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+
+        .book-item-meta {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+
+        .book-item-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .btn {
+            padding: 0.875rem 1.75rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 1.5rem;
+        }
+
+        .timeline-item:last-child {
+            padding-bottom: 0;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -1.875rem;
+            top: 0.5rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #f59e0b;
+            border: 3px solid white;
+            box-shadow: 0 0 0 2px #f59e0b;
+        }
+
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            left: -1.5rem;
+            top: 1.25rem;
+            width: 2px;
+            height: calc(100% - 0.5rem);
+            background: #fef3c7;
+        }
+
+        .timeline-item:last-child::after {
+            display: none;
+        }
+
+        .timeline-date {
+            font-size: 0.85rem;
+            color: #f59e0b;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .timeline-content {
+            color: #475569;
+            font-weight: 500;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #94a3b8;
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 968px) {
+            .author-hero {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .author-meta {
+                justify-content: center;
+            }
+
+            .content-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .author-name-large {
+                font-size: 2rem;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>Author Details</h1>
-    <p><strong>Nom:</strong> {{ author }}</p>
-    <p><strong>Date de naissance:</strong> {{ author.birth_date }}</p>
-    <p><strong>Nationalité:</strong> {{ author.nationality }}</p>
-    <p><strong>Biographie:</strong> {{ author.biography }}</p>
-    <p><strong>Date de décès:</strong> {{ author.death_date }}</p>
-    <p><strong>Site web:</strong> <a href="{{ author.website }}">{{ author.website }}</a></p>
-    {% if author.photo %}
-        <p><strong>Photo:</strong></p>
-        <img src="{{ author.photo.url }}" alt="Photo of {{ author }}" style="max-width:200px; height:auto;">
-    {% endif %}
+    <header>
+        <div class="header-content">
+            <div class="header-left">
+                <a href="{% url 'authors_index' %}" class="back-btn">← Liste des auteurs</a>
+                <h1>Profil de l'auteur</h1>
+            </div>
+            <div class="header-actions">
+                <a href="{% url 'edit_author' author.id %}" class="btn btn-warning">✏️ Modifier</a>
+            </div>
+        </div>
+    </header>
 
-    <div>
-        <h2>Les livres de cet auteur</h2>
-        {% if author.book_set.all %}
-            <ul>
-                {% for book in author.book_set.all %}
-                    <li>
-                        <a href="{% url 'show_book' book.id %}">
-                            {{ book.title }}
-                        </a>
-                        (Publié le: {{ book.published_date }})
-                    </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>Aucun livre trouvé pour cet auteur.</p>
-        {% endif %}
+    <div class="container">
+        <!-- Hero Section -->
+        <div class="author-hero">
+            <div class="author-photo-large">
+                {% if author.photo %}
+                    <img src="{{ author.photo.url }}" alt="{{ author.first_name }} {{ author.last_name }}">
+                {% else %}
+                    ✍️
+                {% endif %}
+            </div>
+            <div class="author-main-info">
+                <h2 class="author-name-large">{{ author.first_name }} {{ author.last_name }}</h2>
+                <div class="author-meta">
+                    <div class="meta-item">
+                        <span class="meta-icon">🌍</span>
+                        <span>{{ author.nationality }}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-icon">📅</span>
+                        <span>Né le {{ author.birth_date|date:"d/m/Y" }}</span>
+                    </div>
+                    {% if author.death_date %}
+                    <div class="meta-item">
+                        <span class="meta-icon">⚰️</span>
+                        <span>Décédé le {{ author.death_date|date:"d/m/Y" }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+                <div>
+                    {% if author.death_date %}
+                    <span class="status-badge-large badge-deceased">
+                        {{ author.birth_date.year }} - {{ author.death_date.year }} ({{ author_age }} ans)
+                    </span>
+                    {% else %}
+                    <span class="status-badge-large badge-living">
+                        ✓ Vivant - {{ author_age }} ans
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="content-layout">
+            <!-- Colonne principale -->
+            <div>
+                <!-- Biographie -->
+                {% if author.biography %}
+                <div class="card">
+                    <div class="card-header">
+                        <span>📖</span>
+                        <span>Biographie</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="biography-text">{{ author.biography }}</div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Liste des livres -->
+                <div class="card">
+                    <div class="card-header">
+                        <span>📚</span>
+                        <span>Livres de {{ author.first_name }} {{ author.last_name }} ({{ books.count }})</span>
+                    </div>
+                    <div class="card-body">
+                        {% if books %}
+                        <div class="books-list">
+                            {% for book in books %}
+                            <div class="book-item" onclick="window.location.href='{% url 'show_book' book.id %}'">
+                                <div class="book-mini-cover">
+                                    {% if book.image %}
+                                        <img src="{{ book.image.url }}" alt="{{ book.title }}">
+                                    {% else %}
+                                        📚
+                                    {% endif %}
+                                </div>
+                                <div class="book-item-info">
+                                    <div class="book-item-title">{{ book.title }}</div>
+                                    <div class="book-item-meta">
+                                        <span>
+                                            📅 {{ book.published_date|date:"Y" }}
+                                        </span>
+                                        <span>
+                                            📄 {{ book.number_pages }} pages
+                                        </span>
+                                        <span>
+                                            💰 {{ book.price }} €
+                                        </span>
+                                        <span>
+                                            📦 {{ book.copies_available }}/{{ book.copies_possessed }} dispo
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="empty-state">
+                            <div class="empty-icon">📚</div>
+                            <p><strong>Aucun livre</strong></p>
+                            <p>Aucun livre de cet auteur n'est encore enregistré dans notre catalogue</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Colonne latérale -->
+            <div>
+                <!-- Statistiques -->
+                <div class="card">
+                    <div class="card-header">
+                        <span>📊</span>
+                        <span>Statistiques</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="stats-grid">
+                            <div class="stat-box">
+                                <div class="stat-value">{{ books.count }}</div>
+                                <div class="stat-label">Livre{{ books.count|pluralize }}</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-value">
+                                    {{ author_age }}
+                                </div>
+                                <div class="stat-label">Ans</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-value">{{ total_pages }}</div>
+                                <div class="stat-label">Pages écrites</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-value">{{ available_books }}</div>
+                                <div class="stat-label">Disponibles</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Informations détaillées -->
+                <div class="card">
+                    <div class="card-header">
+                        <span>ℹ️</span>
+                        <span>Informations</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">Prénom</div>
+                                <div class="info-value">{{ author.first_name }}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Nom</div>
+                                <div class="info-value">{{ author.last_name }}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Nationalité</div>
+                                <div class="info-value">{{ author.nationality }}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Date de naissance</div>
+                                <div class="info-value">{{ author.birth_date|date:"d/m/Y" }}</div>
+                            </div>
+                            {% if author.death_date %}
+                            <div class="info-item">
+                                <div class="info-label">Date de décès</div>
+                                <div class="info-value">{{ author.death_date|date:"d/m/Y" }}</div>
+                            </div>
+                            {% endif %}
+                            {% if author.website %}
+                            <div class="info-item">
+                                <div class="info-label">Site web</div>
+                                <div class="info-value">
+                                    <a href="{{ author.website }}" target="_blank" class="website-link">
+                                        🌐 Visiter le site
+                                        <span>→</span>
+                                    </a>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Timeline -->
+                <div class="card">
+                    <div class="card-header">
+                        <span>📅</span>
+                        <span>Chronologie</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <div class="timeline-date">{{ author.birth_date|date:"d/m/Y" }}</div>
+                                <div class="timeline-content">
+                                    Naissance de {{ author.first_name }} {{ author.last_name }}
+                                </div>
+                            </div>
+                            
+                            {% if first_book %}
+                            <div class="timeline-item">
+                                <div class="timeline-date">{{ first_book.published_date|date:"Y" }}</div>
+                                <div class="timeline-content">
+                                    Premier livre: "{{ first_book.title }}"
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if latest_book and latest_book != first_book %}
+                            <div class="timeline-item">
+                                <div class="timeline-date">{{ latest_book.published_date|date:"Y" }}</div>
+                                <div class="timeline-content">
+                                    Dernier livre: "{{ latest_book.title }}"
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if author.death_date %}
+                            <div class="timeline-item">
+                                <div class="timeline-date">{{ author.death_date|date:"d/m/Y" }}</div>
+                                <div class="timeline-content">
+                                    Décès de {{ author.first_name }} {{ author.last_name }}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="card">
+                    <div class="card-header">
+                        <span>⚡</span>
+                        <span>Actions</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="action-buttons">
+                            <a href="{% url 'edit_author' author.id %}" class="btn btn-warning" style="width: 100%;">
+                                ✏️ Modifier l'auteur
+                            </a>
+                            <a href="{% url 'new_book' %}?author={{ author.id }}" class="btn btn-primary" style="width: 100%;">
+                                ➕ Ajouter un livre
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    
-    <a href="{% url 'authors_index' %}">Back to Authors List</a>
 </body>
 </html>
