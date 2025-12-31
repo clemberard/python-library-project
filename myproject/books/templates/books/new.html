@@ -1,55 +1,831 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Créer un livre</title>
+    <title>Ajouter un nouveau livre - Bibliothèque</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 600px;
-            margin: 50px auto;
-            padding: 20px;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        form {
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        header {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 1.5rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .back-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: background 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        h1 {
+            font-size: 1.8rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .progress-bar {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .steps {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .steps::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #e2e8f0;
+            z-index: 0;
+        }
+
+        .step {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+            z-index: 1;
+            flex: 1;
         }
-        label {
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-weight: bold;
+            color: #94a3b8;
+            transition: all 0.3s;
         }
-        input, textarea {
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 14px;
+
+        .step.active .step-circle {
+            background: #10b981;
+            color: white;
+            transform: scale(1.1);
         }
+
+        .step.completed .step-circle {
+            background: #667eea;
+            color: white;
+        }
+
+        .step-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .step.active .step-label {
+            color: #10b981;
+        }
+
+        .form-layout {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 2rem;
+        }
+
+        .quick-tips {
+            position: sticky;
+            top: 2rem;
+            height: fit-content;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 1.25rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .tip-item {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: #f0fdf4;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .tip-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .tip-icon {
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .form-step {
+            display: none;
+        }
+
+        .form-step.active {
+            display: block;
+        }
+
+        .form-section {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            color: #10b981;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group-full {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .required {
+            color: #ef4444;
+            margin-left: 0.25rem;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        input[type="file"],
+        select,
+        textarea {
+            padding: 0.875rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
         textarea {
             resize: vertical;
-            min-height: 100px;
+            min-height: 120px;
         }
-        button {
-            padding: 10px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
+
+        select {
             cursor: pointer;
-            font-size: 16px;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2310b981' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            padding-right: 3rem;
         }
-        button:hover {
-            background-color: #0056b3;
+
+        .help-text {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 0.5rem;
+        }
+
+        .image-upload {
+            border: 2px dashed #e2e8f0;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+            background: #f8fafc;
+        }
+
+        .image-upload:hover {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+
+        .image-preview {
+            width: 200px;
+            height: 280px;
+            margin: 0 auto 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            overflow: hidden;
+        }
+
+        .image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: space-between;
+            padding-top: 2rem;
+            border-top: 2px solid #f1f5f9;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 0.875rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e1;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid #ef4444;
+        }
+
+        .isbn-validator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .validator-icon {
+            font-size: 1.2rem;
+        }
+
+        .validator-text {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .valid {
+            color: #10b981;
+        }
+
+        .invalid {
+            color: #ef4444;
+        }
+
+        @media (max-width: 968px) {
+            .form-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-tips {
+                position: relative;
+                top: 0;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .steps {
+                flex-wrap: wrap;
+            }
+
+            .step-label {
+                font-size: 0.75rem;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>Créer un nouveau livre</h1>
-    <a href="/books/" style="margin-bottom: 20px; display: inline-block;">&larr; Retour à la liste des livres</a>
-    <form method="POST" action="/books/create/">
-        {% csrf_token %}
-        {{ form }}
-        <button type="submit">Créer</button>
-    </form>
+    <header>
+        <div class="header-content">
+            <a href="{% url 'books_index' %}" class="back-btn">← Catalogue</a>
+            <h1>➕ Ajouter un nouveau livre</h1>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Barre de progression -->
+        <div class="progress-bar">
+            <div class="steps">
+                <div class="step active" data-step="1">
+                    <div class="step-circle">1</div>
+                    <div class="step-label">Informations</div>
+                </div>
+                <div class="step" data-step="2">
+                    <div class="step-circle">2</div>
+                    <div class="step-label">Publication</div>
+                </div>
+                <div class="step" data-step="3">
+                    <div class="step-circle">3</div>
+                    <div class="step-label">Stock & Prix</div>
+                </div>
+                <div class="step" data-step="4">
+                    <div class="step-circle">4</div>
+                    <div class="step-label">Image</div>
+                </div>
+            </div>
+        </div>
+
+        {% if form.errors %}
+        <div class="alert alert-error">
+            <span style="font-size: 1.5rem;">⚠️</span>
+            <div>
+                <strong>Erreur(s) dans le formulaire :</strong>
+                <ul style="margin-top: 0.5rem; margin-left: 1.5rem;">
+                    {% for field, errors in form.errors.items %}
+                        {% for error in errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data" id="bookForm" action="{% url 'create_book' %}">
+            {% csrf_token %}
+            
+            <div class="form-layout">
+                <!-- Conseils rapides -->
+                <div class="quick-tips">
+                    <div class="card">
+                        <div class="card-header">
+                            <span>💡</span>
+                            <span>Conseils rapides</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="tip-item">
+                                <span class="tip-icon">📚</span>
+                                <span>Vérifiez l'ISBN sur la couverture ou la page de copyright</span>
+                            </div>
+                            <div class="tip-item">
+                                <span class="tip-icon">✍️</span>
+                                <span>Sélectionnez ou créez l'auteur avant d'ajouter le livre</span>
+                            </div>
+                            <div class="tip-item">
+                                <span class="tip-icon">🖼️</span>
+                                <span>Une image de couverture améliore la présentation</span>
+                            </div>
+                            <div class="tip-item">
+                                <span class="tip-icon">📦</span>
+                                <span>Le nombre disponible doit être ≤ au nombre possédé</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <span>🔗</span>
+                            <span>Liens rapides</span>
+                        </div>
+                        <div class="card-body" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                            <a href="{% url 'new_author' %}" class="btn btn-secondary" style="width: 100%;">
+                                ➕ Nouvel auteur
+                            </a>
+                            <a href="{% url 'new_category' %}" class="btn btn-secondary" style="width: 100%;">
+                                ➕ Nouvelle catégorie
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formulaire par étapes -->
+                <div>
+                    <!-- Étape 1: Informations principales -->
+                    <div class="form-step active" data-step="1">
+                        <div class="card">
+                            <div class="card-header">
+                                <span>📖</span>
+                                <span>Étape 1: Informations principales</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="id_isbn">
+                                            ISBN
+                                            <span class="required">*</span>
+                                        </label>
+                                        {{ form.isbn }}
+                                        <span class="help-text">13 chiffres (ex: 9782123456789)</span>
+                                        <div class="isbn-validator" id="isbnValidator" style="display: none;">
+                                            <span class="validator-icon"></span>
+                                            <span class="validator-text"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="id_title">
+                                            Titre du livre
+                                            <span class="required">*</span>
+                                        </label>
+                                        {{ form.title }}
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="id_author">
+                                            Auteur
+                                            <span class="required">*</span>
+                                        </label>
+                                        {{ form.author }}
+                                        <span class="help-text">
+                                            <a href="{% url 'new_author' %}" target="_blank" style="color: #10b981;">
+                                                + Créer un nouvel auteur
+                                            </a>
+                                        </span>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="id_category">
+                                            Catégorie
+                                        </label>
+                                        {{ form.category }}
+                                    </div>
+                                </div>
+
+                                <div class="form-group form-group-full">
+                                    <label for="id_description">
+                                        Description / Résumé
+                                    </label>
+                                    {{ form.description }}
+                                    <span class="help-text">Décrivez brièvement le contenu du livre</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Étape 2: Détails de publication -->
+                    <div class="form-step" data-step="2">
+                        <div class="card">
+                            <div class="card-header">
+                                <span>📅</span>
+                                <span>Étape 2: Détails de publication</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="id_published_date">
+                                            Date de publication
+                                            <span class="required">*</span>
+                                        </label>
+                                        {{ form.published_date }}
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="id_edition">
+                                            Édition
+                                        </label>
+                                        {{ form.edition }}
+                                        <span class="help-text">Ex: 2e édition, Édition de luxe</span>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="id_language">
+                                            Langue
+                                            <span class="required">*</span>
+                                        </label>
+                                        {{ form.language }}
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="id_number_pages">
+                                            Nombre de pages
+                                            <span class="required">*</span>
+                                        </label>
+                                        {{ form.number_pages }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Étape 3: Prix et stock -->
+                    <div class="form-step" data-step="3">
+                        <div class="card">
+                            <div class="card-header">
+                                <span>💰</span>
+                                <span>Étape 3: Prix et gestion du stock</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="id_price">
+                                            Prix (€)
+                                            <span class="required">*</span>
+                                        </label>
+                                        {{ form.price }}
+                                        <span class="help-text">Prix d'achat ou valeur du livre</span>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="id_copies_possessed">
+                                            Exemplaires possédés
+                                            <span class="required">*</span>
+                                        </label>
+                                        {{ form.copies_possessed }}
+                                        <span class="help-text">Nombre total d'exemplaires en bibliothèque</span>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="id_copies_available">
+                                            Exemplaires disponibles
+                                            <span class="required">*</span>
+                                        </label>
+                                        {{ form.copies_available }}
+                                        <span class="help-text">Nombre actuellement disponible à l'emprunt</span>
+                                    </div>
+                                </div>
+
+                                <div style="background: #f0fdf4; padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+                                    <strong style="color: #10b981;">💡 Astuce:</strong>
+                                    <p style="margin-top: 0.5rem; color: #064e3b; font-size: 0.9rem;">
+                                        Si vous venez d'acquérir 5 exemplaires d'un livre neuf, mettez 5 pour "possédés" et 5 pour "disponibles".
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Étape 4: Image -->
+                    <div class="form-step" data-step="4">
+                        <div class="card">
+                            <div class="card-header">
+                                <span>🖼️</span>
+                                <span>Étape 4: Image de couverture (optionnel)</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="image-upload" onclick="document.getElementById('id_image').click()">
+                                    <div class="image-preview" id="imagePreview">
+                                        <span id="previewIcon">📚</span>
+                                    </div>
+                                    <p style="color: #10b981; font-weight: 600; margin-bottom: 0.5rem;">
+                                        📷 Cliquez pour ajouter une image
+                                    </p>
+                                    <p style="color: #64748b; font-size: 0.85rem;">
+                                        Formats acceptés : JPG, PNG, WebP<br>
+                                        Taille recommandée : 400x600px
+                                    </p>
+                                </div>
+                                {{ form.image }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" id="prevBtn" onclick="changeStep(-1)" style="display: none;">
+                            ← Précédent
+                        </button>
+                        <div style="flex: 1;"></div>
+                        <a href="{% url 'books_index' %}" class="btn btn-secondary">
+                            Annuler
+                        </a>
+                        <button type="button" class="btn btn-primary" id="nextBtn" onclick="changeStep(1)">
+                            Suivant →
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="submitBtn" style="display: none;">
+                            ✓ Ajouter le livre
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 4;
+
+        function changeStep(direction) {
+            const newStep = currentStep + direction;
+            
+            if (newStep < 1 || newStep > totalSteps) return;
+            
+            // Cacher l'étape actuelle
+            document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.remove('active');
+            document.querySelector(`.step[data-step="${currentStep}"]`).classList.remove('active');
+            document.querySelector(`.step[data-step="${currentStep}"]`).classList.add('completed');
+            
+            // Afficher la nouvelle étape
+            currentStep = newStep;
+            document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.add('active');
+            document.querySelector(`.step[data-step="${currentStep}"]`).classList.add('active');
+            
+            // Gérer les boutons
+            document.getElementById('prevBtn').style.display = currentStep === 1 ? 'none' : 'inline-flex';
+            document.getElementById('nextBtn').style.display = currentStep === totalSteps ? 'none' : 'inline-flex';
+            document.getElementById('submitBtn').style.display = currentStep === totalSteps ? 'inline-flex' : 'none';
+            
+            // Scroll vers le haut
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Validation ISBN
+        const isbnInput = document.getElementById('id_isbn');
+        const isbnValidator = document.getElementById('isbnValidator');
+
+        if (isbnInput) {
+            isbnInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length > 13) {
+                    value = value.slice(0, 13);
+                }
+                e.target.value = value;
+                
+                const icon = isbnValidator.querySelector('.validator-icon');
+                const text = isbnValidator.querySelector('.validator-text');
+                
+                if (value.length === 0) {
+                    isbnValidator.style.display = 'none';
+                } else if (value.length === 13) {
+                    isbnValidator.style.display = 'flex';
+                    isbnValidator.className = 'isbn-validator valid';
+                    icon.textContent = '✓';
+                    text.textContent = 'ISBN valide';
+                } else {
+                    isbnValidator.style.display = 'flex';
+                    isbnValidator.className = 'isbn-validator invalid';
+                    icon.textContent = '✗';
+                    text.textContent = `${value.length}/13 chiffres`;
+                }
+            });
+        }
+
+        // Prévisualisation image
+        const imageInput = document.getElementById('id_image');
+        const imagePreview = document.getElementById('imagePreview');
+        const previewIcon = document.getElementById('previewIcon');
+
+        if (imageInput) {
+            imageInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        if (previewIcon) previewIcon.style.display = 'none';
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        imagePreview.innerHTML = '';
+                        imagePreview.appendChild(img);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        // Validation stock
+        const copiesPossessed = document.getElementById('id_copies_possessed');
+        const copiesAvailable = document.getElementById('id_copies_available');
+
+        if (copiesPossessed && copiesAvailable) {
+            copiesAvailable.addEventListener('input', function() {
+                const possessed = parseInt(copiesPossessed.value) || 0;
+                const available = parseInt(copiesAvailable.value) || 0;
+                
+                if (available > possessed) {
+                    copiesAvailable.setCustomValidity('Le nombre disponible ne peut pas dépasser le nombre possédé');
+                    copiesAvailable.style.borderColor = '#ef4444';
+                } else {
+                    copiesAvailable.setCustomValidity('');
+                    copiesAvailable.style.borderColor = '#e2e8f0';
+                }
+            });
+
+            copiesPossessed.addEventListener('input', function() {
+                copiesAvailable.dispatchEvent(new Event('input'));
+            });
+        }
+    </script>
 </body>
 </html>

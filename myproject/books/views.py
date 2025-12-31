@@ -8,14 +8,8 @@ from .forms import BookForm
 
 # Create your views here.
 def books_view(request):
-    """_summary_
-    Docstring pour hello_books_view
-
-    Args:
-        request (HttpRequest): The HTTP request object.
-    
-    Returns:
-        Rendered HTML page with a list of books.
+    """
+    Affiche la liste de tous les livres avec des statistiques supplémentaires.
     """
     books = Book.objects.all()
     total_books = books.count()
@@ -36,15 +30,8 @@ def books_view(request):
         })
 
 def show_book(request, book_id):
-    """_summary_
-    Docstring pour show_book
-
-    Args:
-        request (HttpRequest): The HTTP request object.
-        book_id (int): The ID of the book to display.
-    
-    Returns:
-        HttpResponse: The HTTP response with the book details.
+    """
+    Affiche les détails d'un livre spécifique, y compris les prêts en cours.
     """
     book = Book.objects.get(id=book_id)
     loans = Loan.objects.filter(book=book, return_date__isnull=True)
@@ -52,28 +39,16 @@ def show_book(request, book_id):
     return render(request, 'books/show.html', {'book': book, 'loans': loans})
 
 def new_view(request):
-    """_summary_
-    Docstring pour new_view
-
-    Args:
-        request (HttpRequest): The HTTP request object.
-    
-    Returns:
-        HttpResponse: The HTTP response for the new book page.
+    """
+    Affiche le formulaire pour créer un nouveau livre.
     """
     form = BookForm()
 
     return render(request, 'books/new.html', {'form': form})
 
 def create_view(request):
-    """_summary_
-    Docstring pour create_view
-
-    Args:
-        request (HttpRequest): The HTTP request object.
-    
-    Returns:
-        HttpResponse: The HTTP response after creating a new book.
+    """
+    Traite le formulaire de création d'un nouveau livre.
     """
     if request.method == 'POST':
         form = BookForm(request.POST)
@@ -81,20 +56,14 @@ def create_view(request):
             new_book = form.save()
             return render(request, 'books/show.html', {'book': new_book})
         else:
+            breakpoint()
             return render(request, 'books/new.html', {'form': form})
     else:
         return HttpResponse('Invalid request method.', status=400)
 
 def edit_view(request, book_id):
-    """_summary_
-    Docstring pour edit_view
-
-    Args:
-        request (HttpRequest): The HTTP request object.
-        book_id (int): The ID of the book to edit.
-    
-    Returns:
-        HttpResponse: The HTTP response for the edit book page.
+    """
+    Affiche le formulaire pour éditer un livre existant.
     """
     book = Book.objects.get(id=book_id)
     form = BookForm(instance=book)
@@ -102,15 +71,8 @@ def edit_view(request, book_id):
     return render(request, 'books/edit.html', {'form': form, 'book': book})
 
 def update_view(request, book_id):
-    """_summary_
-    Docstring pour update_view
-
-    Args:
-        request (HttpRequest): The HTTP request object.
-        book_id (int): The ID of the book to update.
-    
-    Returns:
-        HttpResponse: The HTTP response after updating the book.
+    """
+    Traite le formulaire de mise à jour d'un livre existant.
     """
     book = Book.objects.get(id=book_id)
 
@@ -125,15 +87,8 @@ def update_view(request, book_id):
         return HttpResponse('Invalid request method.', status=400)
     
 def delete_view(request, book_id):
-    """_summary_
-    Docstring pour delete_view
-
-    Args:
-        request (HttpRequest): The HTTP request object.
-        book_id (int): The ID of the book to delete.
-    
-    Returns:
-        HttpResponse: The HTTP response after deleting the book.
+    """
+    Supprime un livre spécifique.
     """
     book = Book.objects.get(id=book_id)
     book.delete()

@@ -5,14 +5,8 @@ from .models import Loan, Book
 # Create your views here.
 
 def loans_view(request):
-    """_summary_
-    Docstring pour loans_view
-
-    Args:
-        request (HttpRequest): The HTTP request object.
-    
-    Returns:
-        Rendered HTML page for loans.
+    """
+    Affiche la liste de tous les prêts.
     """
     loans = Loan.objects.all()
     total_loans = loans.count()
@@ -29,28 +23,15 @@ def loans_view(request):
     })
 
 def show_loan(request, loan_id):
-    """_summary_
-    Docstring pour show_loan
-
-    Args:
-        request (HttpRequest): The HTTP request object.
-        loan_id (int): The ID of the loan to display.
-    
-    Returns:
-        Rendered HTML page for a specific loan.
+    """
+    Affiche les détails d'un prêt spécifique.
     """
     loan = Loan.objects.get(id=loan_id)
     return render(request, 'loans/show.html', {'loan': loan})
 
 def new_loan(request):
-    """_summary_
-    Docstring pour new_loan
-
-    Args:
-        request (HttpRequest): The HTTP request object.
-    
-    Returns:
-        Rendered HTML page for creating a new loan.
+    """
+    Affiche le formulaire pour créer un nouveau prêt.
     """
     if request.GET.get('book'):
         form = LoanForm(initial={'book': request.GET.get('book')})
@@ -59,14 +40,8 @@ def new_loan(request):
     return render(request, 'loans/new.html', {'form': form})
 
 def create_loan(request):
-    """_summary_
-    Docstring pour create_loan
-
-    Args:
-        request (HttpRequest): The HTTP request object.
-    
-    Returns:
-        Rendered HTML page after creating a new loan.
+    """
+    Traite le formulaire de création d'un nouveau prêt.
     """
     if request.method == 'POST':
         form = LoanForm(request.POST)
@@ -81,15 +56,8 @@ def create_loan(request):
         return render(request, 'loans/new.html', {'form': form})
     
 def edit_loan(request, loan_id):
-    """_summary_
-    Docstring pour edit_loan
-
-    Args:
-        request (HttpRequest): The HTTP request object.
-        loan_id (int): The ID of the loan to edit.
-    
-    Returns:
-        Rendered HTML page for editing a specific loan.
+    """
+    Affiche le formulaire pour éditer un prêt existant.
     """
     loan = Loan.objects.get(id=loan_id)
     form = LoanForm(initial={
@@ -104,15 +72,8 @@ def edit_loan(request, loan_id):
     return render(request, 'loans/edit.html', {'form': form, 'loan': loan})
 
 def update_loan(request, loan_id):
-    """_summary_
-    Docstring pour update_loan
-
-    Args:
-        request (HttpRequest): The HTTP request object.
-        loan_id (int): The ID of the loan to update.
-    
-    Returns:
-        Rendered HTML page after updating a specific loan.
+    """
+    Traite le formulaire de mise à jour d'un prêt existant.
     """
     loan = Loan.objects.get(id=loan_id)
     if request.method == 'POST':
@@ -140,15 +101,8 @@ def update_loan(request, loan_id):
     return render(request, 'loans/edit.html', {'form': form, 'loan': loan})
 
 def delete_loan(request, loan_id):
-    """_summary_
-    Docstring pour delete_loan
-
-    Args:
-        request (HttpRequest): The HTTP request object.
-        loan_id (int): The ID of the loan to delete.
-    
-    Returns:
-        Rendered HTML page after deleting a specific loan.
+    """
+    Supprime un prêt spécifique.
     """
     loan = Loan.objects.get(id=loan_id)
     loan.delete()
@@ -168,15 +122,8 @@ def delete_loan(request, loan_id):
     })
 
 def return_loan(request, loan_id):
-    """_summary_
-    Docstring pour return_loan
-
-    Args:
-        request (HttpRequest): The HTTP request object.
-        loan_id (int): The ID of the loan to return.
-    
-    Returns:
-        Rendered HTML page after returning a specific loan.
+    """
+    Traite le retour d'un prêt
     """
     loan = Loan.objects.get(id=loan_id)
     loan.status = 'retourne'
