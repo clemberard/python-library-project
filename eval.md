@@ -82,9 +82,9 @@ class Enrollment(models.Model):
 
 ```python
 1. Course.objects.all().order_by('prix')
-2. Enrollment.objects.get(id=5).user.count()
+2. Enrollment.objects.get(id=5).user
 3. Enrollment.objects.filter(statut='complete', course__instructor__id=X).count()
-4. ---
+4. Enrollment.objects.order_by('course').distinct('user')[:3]
 ```
 
 ### Partie C
@@ -266,7 +266,7 @@ def custom_login(request):
 ### Partie B
 
 ```python
-# Dans ulane classe Meta situé dans le model Course
+# Dans une classe Meta situé dans le model Course
 
 permissions = [
     ('can_publish_course', 'Peut publier un cours'),
@@ -297,7 +297,7 @@ def course_publish(request, course_id):
 {% endif %}
 
 {% if perms.course.can_view_statistics %}
-    <a href="{% url 'reserve_book' book.pk %}">Statistiques</a>
+    <a href="{% url 'stats' book.pk %}">Statistiques</a>
 {% endif %}
 
 {% if perms.course.can_publish_course %}
